@@ -1,21 +1,15 @@
 /*
-
  Ripser: a lean C++ code for computation of Vietoris-Rips persistence barcodes
-
  MIT License
-
  Copyright (c) 2015–2019 Ulrich Bauer
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
  The above copyright notice and this permission notice shall be included in all
  copies or substantial portions of the Software.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,7 +17,6 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
  You are under no obligation whatsoever to provide any bug fixes, patches, or
  upgrades to the features, functionality or performance of the source code
  ("Enhancements") to anyone; however, if you choose to make your Enhancements
@@ -33,13 +26,12 @@
  license to install, use, modify, prepare derivative works, incorporate into
  other computer software, distribute, and sublicense such enhancements or
  derivative works thereof, in binary and source code form.
-
 */
 
 //#define USE_COEFFICIENTS
 
-// #define INDICATE_PROGRESS
-// #define PRINT_PERSISTENCE_PAIRS
+#define INDICATE_PROGRESS
+#define PRINT_PERSISTENCE_PAIRS
 
 //#define USE_ROBINHOOD_HASHMAP
 
@@ -429,7 +421,6 @@ struct ripserResults {
 
 
 
-
 template <typename DistanceMatrix> class ripser {
 	const DistanceMatrix dist;
 	const index_t n, dim_max;
@@ -473,14 +464,6 @@ public:
 		return binomial_coeff(i, 2) + j;
 	}
 
-	
-	void copy_results(ripserResults& res)
-    {
-        res.births_and_deaths_by_dim = births_and_deaths_by_dim;
-        res.cycles_by_dim = cycles_by_dim;
-		res.dim_0_pairs = dim_0_pairs;
-    }
-
 	template <typename OutputIterator>
 	OutputIterator get_simplex_vertices(index_t idx, const index_t dim, index_t n,
 	                                    OutputIterator out) const {
@@ -492,6 +475,13 @@ public:
 		}
 		return out;
 	}
+
+	void copy_results(ripserResults& res)
+    {
+        res.births_and_deaths_by_dim = births_and_deaths_by_dim;
+        res.cycles_by_dim = cycles_by_dim;
+		res.dim_0_pairs = dim_0_pairs;
+    }
 
 	value_t compute_diameter(const index_t index, index_t dim) const {
 		value_t diam = -std::numeric_limits<value_t>::infinity();
@@ -597,9 +587,9 @@ public:
 
 	void compute_dim_0_pairs(std::vector<diameter_index_t>& edges,
 	                         std::vector<diameter_index_t>& columns_to_reduce) {
-// #ifdef PRINT_PERSISTENCE_PAIRS
-// 		std::cout << "persistence intervals in dim 0:" << std::endl;
-// #endif
+#ifdef PRINT_PERSISTENCE_PAIRS
+		std::cout << "persistence intervals in dim 0:" << std::endl;
+#endif
 
 		union_find dset(n);
 
@@ -607,9 +597,9 @@ public:
 		std::sort(edges.rbegin(), edges.rend(),
 		          greater_diameter_or_smaller_index<diameter_index_t>());
 
-// #ifdef PRINT_PERSISTENCE_PAIRS
-// 		std::cout << "persistence intervals in dim 0:" << std::endl;
-// #endif
+#ifdef PRINT_PERSISTENCE_PAIRS
+		std::cout << "persistence intervals in dim 0:" << std::endl;
+#endif
 
 		std::vector<index_t> vertices_of_edge(2);
 		for (auto e : edges) {
@@ -617,27 +607,25 @@ public:
 			index_t u = dset.find(vertices_of_edge[0]), v = dset.find(vertices_of_edge[1]);
 
 			if (u != v) {
-// #ifdef PRINT_PERSISTENCE_PAIRS
-// 				if (get_diameter(e) != 0)
-// 					std::cout << " [0," << get_diameter(e) << "):  {[" << u << "]"
-// #ifdef USE_COEFFICIENTS
-// 					          << (modulus != 2 ? ":1" : "")
-// #endif
-// 					          << ", [" << v << "]"
-// #ifdef USE_COEFFICIENTS
-// 					          << (modulus != 2 ? ":-1" : "")
-// #endif
-// 					          << "}" << std::endl;
-
-// #endif			
 				value_t death = get_diameter(e);
-
-				if (death > 0) {
+#ifdef PRINT_PERSISTENCE_PAIRS
+				if (death != 0) {
 					births_and_deaths_by_dim[0].push_back(0);
 					births_and_deaths_by_dim[0].push_back(death);
 					dim_0_pairs.push_back(u);
 					dim_0_pairs.push_back(v);
 				}
+					std::cout << " [0," << get_diameter(e) << "):  {[" << u << "]"
+#ifdef USE_COEFFICIENTS
+					          << (modulus != 2 ? ":1" : "")
+#endif
+					          << ", [" << v << "]"
+#ifdef USE_COEFFICIENTS
+					          << (modulus != 2 ? ":-1" : "")
+#endif
+					          << "}" << std::endl;
+
+#endif
 				dset.link(u, v);
 			} else
 				columns_to_reduce.push_back(e);
@@ -650,47 +638,106 @@ public:
 				births_and_deaths_by_dim[0].push_back(0);
                 births_and_deaths_by_dim[0].push_back(std::numeric_limits<value_t>::infinity());
 				dim_0_pairs.push_back(i);
-				// std::cout << " [0, ):  {[" << i << "]"
-// #ifdef USE_COEFFICIENTS
-// 				          << ":1"
-// #endif
-// 				          << "}" << std::endl;
+			
+				std::cout << " [0, ):  {[" << i << "]"
+#ifdef USE_COEFFICIENTS
+				          << ":1"
+#endif
+				          << "}" << std::endl;
 #endif
 			}
+			
 	}
+// 	template <typename Chain> std::vector<long> print_chain(Chain& cycle, index_t dim) {
+// 		diameter_entry_t e;
+// 		std::vector<long> current_chain;
+
+// 		// std::cout << "{";
+// 		while (get_index(e = get_pivot(cycle)) != -1) {
+// 			vertices.resize(dim + 1);
+// 			get_simplex_vertices(get_index(e), dim, n, vertices.rbegin());
+
+// 			// std::cout << "[";
+// 			auto it = vertices.begin();
+// 			if (it != vertices.end()) {
+// 				current_chain.push_back(*it);
+// 				*it++;
+				
+// 				while (it != vertices.end()) {
+// 					current_chain.push_back(*it);
+// 					*it++;
+// 					// std::cout << "," << *it++;
+// 				}
+// 			}
+// 			// std::cout << "]";
+// #ifdef USE_COEFFICIENTS
+// 			if (modulus != 2) std::cout << ":" << normalize(get_coefficient(e), modulus);
+// #endif
+// 			// std::cout << " (" << get_diameter(e) << ")";
+// 			cycle.pop();
+// 			// if (get_index(e = get_pivot(cycle)) != -1) std::cout << ", ";
+// 		}
+// 		// std::cout << "}" << std::endl;
+
+// 		return current_chain;
+// 	}
 
 	template <typename Chain> std::vector<long> print_chain(Chain& cycle, index_t dim) {
+		
 		diameter_entry_t e;
 		std::vector<long> current_chain;
-
-		// std::cout << "{";
+		
+		std::cout << "{";
 		while (get_index(e = get_pivot(cycle)) != -1) {
 			vertices.resize(dim + 1);
 			get_simplex_vertices(get_index(e), dim, n, vertices.rbegin());
 
-			// std::cout << "[";
+			std::cout << "[";
 			auto it = vertices.begin();
 			if (it != vertices.end()) {
-				current_chain.push_back(*it);
-				*it++;
-				
+				current_chain.push_back(*it);			
+				std::cout << *it++;
 				while (it != vertices.end()) {
 					current_chain.push_back(*it);
-					*it++;
-					// std::cout << "," << *it++;
+					std::cout << "," << *it++;
 				}
 			}
-			// std::cout << "]";
+			std::cout << "]";
 #ifdef USE_COEFFICIENTS
 			if (modulus != 2) std::cout << ":" << normalize(get_coefficient(e), modulus);
 #endif
-			// std::cout << " (" << get_diameter(e) << ")";
+			std::cout << " (" << get_diameter(e) << ")";
 			cycle.pop();
-			// if (get_index(e = get_pivot(cycle)) != -1) std::cout << ", ";
+			if (get_index(e = get_pivot(cycle)) != -1) std::cout << ", ";
 		}
-		// std::cout << "}" << std::endl;
-
+		std::cout << "}" << std::endl;
 		return current_chain;
+	
+	}
+	
+	template <typename Chain> void print_chain_orig(Chain& cycle, index_t dim) {
+		diameter_entry_t e;
+
+		std::cout << "{";
+		while (get_index(e = get_pivot(cycle)) != -1) {
+			vertices.resize(dim + 1);
+			get_simplex_vertices(get_index(e), dim, n, vertices.rbegin());
+
+			std::cout << "[";
+			auto it = vertices.begin();
+			if (it != vertices.end()) {
+				std::cout << *it++;
+				while (it != vertices.end()) std::cout << "," << *it++;
+			}
+			std::cout << "]";
+#ifdef USE_COEFFICIENTS
+			if (modulus != 2) std::cout << ":" << normalize(get_coefficient(e), modulus);
+#endif
+			std::cout << " (" << get_diameter(e) << ")";
+			cycle.pop();
+			if (get_index(e = get_pivot(cycle)) != -1) std::cout << ", ";
+		}
+		std::cout << "}" << std::endl;
 	}
 
 	template <typename Column> diameter_entry_t pop_pivot(Column& column) {
@@ -778,10 +825,10 @@ public:
 	void compute_pairs(const std::vector<diameter_index_t>& columns_to_reduce,
 	                   entry_hash_map& pivot_column_index, const index_t dim) {
 
-// #ifdef PRINT_PERSISTENCE_PAIRS
-// 		if (!cohomology)
-// 			std::cout << "persistence intervals in dim " << dim - 1 << ":" << std::endl;
-// #endif
+#ifdef PRINT_PERSISTENCE_PAIRS
+		if (!cohomology)
+			std::cout << "persistence intervals in dim " << dim - 1 << ":" << std::endl;
+#endif
 
 		compressed_sparse_matrix<diameter_entry_t> reduction_matrix;
 
@@ -850,19 +897,18 @@ public:
 #ifdef INDICATE_PROGRESS
 						std::cerr << clear_line << std::flush;
 #endif
-						// std::cout << "+[" << diameter << ", ):  ";
+						std::cout << "+[" << diameter << ", ):  ";
 						std::vector<long> current_chain = print_chain(working_reduction_column, dim);
 						cycles_by_dim[dim - 1].push_back(current_chain);
+						
 #endif
 
 					} else {
 						pivot = get_pivot(final_coboundary);
 						value_t death = get_diameter(pivot);
 						if (diameter > death * ratio) {
-							
 							births_and_deaths_by_dim[dim - 1].push_back(death);
-							births_and_deaths_by_dim[dim - 1].push_back(diameter);							
-                            
+							births_and_deaths_by_dim[dim - 1].push_back(diameter);
 #ifdef INDICATE_PROGRESS
 							std::cerr << clear_line << std::flush;
 #endif
@@ -871,9 +917,10 @@ public:
 								; // std::cout << " [" << death << "," << diameter << ")" <<
 								  // std::endl;
 							else {
-								// std::cout << " [" << death << "," << diameter << "):  ";
-								// births_and_deaths_by_dim[dim - 1].push_back(death);
-								// births_and_deaths_by_dim[dim - 1].push_back(diameter);
+								// std::vector<long> current_chain = print_chain(final_coboundary, dim - 1);
+								// cycles_by_dim[dim - 1].push_back(current_chain);
+
+								std::cout << " [" << death << "," << diameter << "):  ";
 								std::vector<long> current_chain = print_chain(final_coboundary, dim - 1);
 								cycles_by_dim[dim - 1].push_back(current_chain);
 							}
@@ -897,7 +944,7 @@ public:
         cycles_by_dim.resize(dim_max + 1);
 
 		compute_dim_0_pairs(simplices, columns_to_reduce);
-		
+
 		for (index_t dim = 1; dim <= dim_max; ++dim) {
 			entry_hash_map pivot_column_index;
 			pivot_column_index.reserve(columns_to_reduce.size());
@@ -1247,7 +1294,126 @@ void print_usage_and_exit(int exit_code) {
 	exit(exit_code);
 }
 
+// int main(int argc, char** argv) {
+// 	const char* filename = nullptr;
 
+// 	file_format format = DISTANCE_MATRIX;
+
+// 	index_t dim_max = 1;
+// 	value_t threshold = std::numeric_limits<value_t>::max();
+// 	float ratio = 1;
+// 	coefficient_t modulus = 2;
+
+// 	for (index_t i = 1; i < argc; ++i) {
+// 		const std::string arg(argv[i]);
+// 		if (arg == "--help") {
+// 			print_usage_and_exit(0);
+// 		} else if (arg == "--dim") {
+// 			std::string parameter = std::string(argv[++i]);
+// 			size_t next_pos;
+// 			dim_max = std::stol(parameter, &next_pos);
+// 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
+// 		} else if (arg == "--threshold") {
+// 			std::string parameter = std::string(argv[++i]);
+// 			size_t next_pos;
+// 			threshold = std::stof(parameter, &next_pos);
+// 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
+// 		} else if (arg == "--ratio") {
+// 			std::string parameter = std::string(argv[++i]);
+// 			size_t next_pos;
+// 			ratio = std::stof(parameter, &next_pos);
+// 			if (next_pos != parameter.size()) print_usage_and_exit(-1);
+// 		} else if (arg == "--format") {
+// 			std::string parameter = std::string(argv[++i]);
+// 			if (parameter.rfind("lower", 0) == 0)
+// 				format = LOWER_DISTANCE_MATRIX;
+// 			else if (parameter.rfind("upper", 0) == 0)
+// 				format = UPPER_DISTANCE_MATRIX;
+// 			else if (parameter.rfind("dist", 0) == 0)
+// 				format = DISTANCE_MATRIX;
+// 			else if (parameter.rfind("point", 0) == 0)
+// 				format = POINT_CLOUD;
+// 			else if (parameter == "dipha")
+// 				format = DIPHA;
+// 			else if (parameter == "sparse")
+// 				format = SPARSE;
+// 			else if (parameter == "binary")
+// 				format = BINARY;
+// 			else
+// 				print_usage_and_exit(-1);
+// #ifdef USE_COEFFICIENTS
+// 		} else if (arg == "--modulus") {
+// 			std::string parameter = std::string(argv[++i]);
+// 			size_t next_pos;
+// 			modulus = std::stol(parameter, &next_pos);
+// 			if (next_pos != parameter.size() || !is_prime(modulus)) print_usage_and_exit(-1);
+// #endif
+// 		} else {
+// 			if (filename) { print_usage_and_exit(-1); }
+// 			filename = argv[i];
+// 		}
+// 	}
+
+// 	std::ifstream file_stream(filename);
+// 	if (filename && file_stream.fail()) {
+// 		std::cerr << "couldn't open file " << filename << std::endl;
+// 		exit(-1);
+// 	}
+
+// 	if (format == SPARSE) {
+// 		sparse_distance_matrix dist =
+// 		    read_sparse_distance_matrix(filename ? file_stream : std::cin);
+// 		std::cout << "sparse distance matrix with " << dist.size() << " points and "
+// 		          << dist.num_edges << "/" << (dist.size() * (dist.size() - 1)) / 2 << " entries"
+// 		          << std::endl;
+
+// 		ripser<sparse_distance_matrix>(std::move(dist), dim_max, threshold, ratio, modulus)
+// 		    .compute_barcodes();
+// 	} else {
+// 		compressed_lower_distance_matrix dist =
+// 		    read_file(filename ? file_stream : std::cin, format);
+
+// 		value_t min = std::numeric_limits<value_t>::infinity(),
+// 		        max = -std::numeric_limits<value_t>::infinity(), max_finite = max;
+// 		int num_edges = 0;
+
+// 		value_t enclosing_radius = std::numeric_limits<value_t>::infinity();
+// 		if (threshold == std::numeric_limits<value_t>::max()) {
+// 			for (size_t i = 0; i < dist.size(); ++i) {
+// 				value_t r_i = -std::numeric_limits<value_t>::infinity();
+// 				for (size_t j = 0; j < dist.size(); ++j) r_i = std::max(r_i, dist(i, j));
+// 				enclosing_radius = std::min(enclosing_radius, r_i);
+// 			}
+// 		}
+
+// 		for (auto d : dist.distances) {
+// 			min = std::min(min, d);
+// 			max = std::max(max, d);
+// 			max_finite =
+// 			    d != std::numeric_limits<value_t>::infinity() ? std::max(max, d) : max_finite;
+// 			if (d <= threshold) ++num_edges;
+// 		}
+// 		std::cout << "value range: [" << min << "," << max_finite << "]" << std::endl;
+
+// 		if (threshold == std::numeric_limits<value_t>::max()) {
+// 			std::cout << "distance matrix with " << dist.size()
+// 			          << " points, using threshold at enclosing radius " << enclosing_radius
+// 			          << std::endl;
+// 			ripser<compressed_lower_distance_matrix>(std::move(dist), dim_max, enclosing_radius,
+// 			                                         ratio, modulus)
+// 			    .compute_barcodes();
+// 		} else {
+// 			std::cout << "sparse distance matrix with " << dist.size() << " points and "
+// 			          << num_edges << "/" << (dist.size() * dist.size() - 1) / 2 << " entries"
+// 			          << std::endl;
+
+// 			ripser<sparse_distance_matrix>(sparse_distance_matrix(std::move(dist), threshold),
+// 			                               dim_max, threshold, ratio, modulus)
+// 			    .compute_barcodes();
+// 		}
+// 		exit(0);
+// 	}
+// }
 
 
 
