@@ -10,6 +10,21 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
+# Note this is a development branch, please go to https://github.com/scikit-tda/ripser.py for stable release
+
+pip install cython
+pip install numpy matplotlib sklearn scipy persim
+python setup.py install 
+
+
+
+
+
+
+
+
+
+
 # Ripser.py
 
 Ripser.py is a lean persistent homology package for Python. Building on the blazing fast C++ Ripser package as the core computational engine, Ripser.py provides an intuitive interface for 
