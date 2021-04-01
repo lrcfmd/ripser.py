@@ -16,6 +16,10 @@ except:
 
 ## Get version information from _version.py
 import re
+
+os.environ["CC"] = "g++" 
+os.environ["CXX"] = "g++"
+
 VERSIONFILE="ripser/_version.py"
 verstrline = open(VERSIONFILE, "rt").read()
 VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
@@ -65,9 +69,10 @@ else:
     ])
 
 macros = [
-    ("USE_COEFFICIENTS", 1),
+    # ("USE_COEFFICIENTS", 1),
     ("NDEBUG", 1),
-    ("ASSEMBLE_REDUCTION_MATRIX", 1)
+    ("ASSEMBLE_REDUCTION_MATRIX", 1),
+    ("PRINT_PERSISTENCE_PAIRS", 0)
 ]
 
 # Robinhood
@@ -104,7 +109,7 @@ setup(
     url="https://ripser.scikit-tda.org",
     license='MIT',
     packages=['ripser'],
-    ext_modules=cythonize(ext_modules),
+    ext_modules=cythonize(ext_modules, gdb_debug=True),
     install_requires=[
         'Cython',
         'numpy',
@@ -142,3 +147,5 @@ setup(
     ],
     keywords='persistent homology, rips filtration, persistence diagrams, topology data analysis, algebraic topology, unsupervised learning'
 )
+
+# g++ -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -fPIC -DUSE_COEFFICIENTS=1 -DNDEBUG=1 -DASSEMBLE_REDUCTION_MATRIX=1 -I./ripser -I/home/cameron/miniconda3/envs/ripserCycle/include/python3.8 -I/home/cameron/miniconda3/envs/ripserCycle/lib/python3.8/site-packages/numpy/core/include -c ripser/pyRipser.cpp -o build/temp.linux-x86_64-3.8/ripser/pyRipser.o -Ofast -D_hypot=hypot -std=c++11
