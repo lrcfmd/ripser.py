@@ -668,6 +668,7 @@ public:
     {
         // TODO: Get correct birth times if the edges are negative (required for
         // lower star)
+        std::cout << "Entered compute_dim_0_pairs";
         union_find dset(n);
         for (index_t i = 0; i < n; i++) {
             dset.set_birth(i, get_vertex_birth(i));
@@ -837,6 +838,7 @@ public:
     void compute_pairs(std::vector<diameter_index_t>& columns_to_reduce,
                        entry_hash_map& pivot_column_index, index_t dim)
     {
+
         compressed_sparse_matrix<diameter_entry_t> reduction_matrix;
         size_t index_column_to_add;
 

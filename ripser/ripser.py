@@ -35,8 +35,10 @@ from sklearn.metrics.pairwise import pairwise_distances
 
 import persim
 
-from pyRipser import doRipsFiltrationDM as DRFDM
-from pyRipser import doRipsFiltrationDMSparse as DRFDMSparse
+# from pyRipser import doRipsFiltrationDM as DRFDM
+from pyRipser import doRipsFiltrationDMCycles as DRFDMCycles
+# from pyRipser import doRipsFiltrationDMSparse as DRFDMSparse
+# from pyRipser import doRipsFiltrationDMSparseCycles as DRFDMSparseCycles
 
 
 def dpoint2pointcloud(X, i, metric):
@@ -113,6 +115,7 @@ def ripser(
     coeff=2,
     distance_matrix=False,
     do_cocycles=False,
+    do_cycles=True,
     metric="euclidean",
     n_perm=None,
 ):
@@ -139,8 +142,12 @@ def ripser(
     distance_matrix: bool, optional, default False
         When True the input matrix X will be considered a distance matrix.
 
-    do_cocycles: bool, optional, default False
+    do_cocycles: bool, optional, default True
         Computed cocycles will be available in the `cocycles` value
+        of the return dictionary.
+
+    do_cycles: bool, optional, default False
+        Computed cycles will be available in the `cycles` value
         of the return dictionary.
 
     metric: string or callable, optional, default "euclidean"
@@ -182,6 +189,11 @@ def ripser(
             * ``dgms``: list (size maxdim) of ndarray (n_pairs, 2)
                 For each dimension less than ``maxdim`` a list of persistence diagrams.
                 Each persistent diagram is a pair (birth time, death time).
+            * ``cycles``: list (size maxdim) of list of ndarray
+                For each dimension less than ``maxdim`` a list of cycles.
+                Each cycle in dimension ``d`` is represented as a ndarray of 
+                ``(k,d+1)`` elements. Each non zero value of the cycle
+                is laid out in a row, with each of the vertices making up the cycle.
             * ``cocycles``: list (size maxdim) of list of ndarray
                 For each dimension less than ``maxdim`` a list of representative cocycles.
                 Each representative cocycle in dimension ``d`` is represented as a
@@ -216,7 +228,7 @@ def ripser(
         from persim import plot_diagrams
 
         data = datasets.make_circles(n_samples=110)[0]
-        dgms = ripser(data)['dgms']
+        dgms = ripser(data, cycles=True)['dgms']
         plot_diagrams(dgms, show = True)
 
     Raises
@@ -242,6 +254,8 @@ def ripser(
         When there are more columns than rows (as each row is a different data point).
 
     """
+    dim_0_pairs = []
+    cycles = []
 
     if distance_matrix:
         if not (X.shape[0] == X.shape[1]):
@@ -298,6 +312,7 @@ def ripser(
         # births
         dm = sparse.coo_matrix(dm)
 
+
     if sparse.issparse(dm):
         if sparse.isspmatrix_coo(dm):
             # If the matrix is already COO, we need to order the row and column indices
@@ -309,49 +324,74 @@ def ripser(
             # Lexicographic ordering is performed by scipy upon conversion to COO
             coo = dm.tocoo()
             row, col, data = coo.row, coo.col, coo.data
-        res = DRFDMSparse(
-            row.astype(dtype=np.int32, order="C"),
-            col.astype(dtype=np.int32, order="C"),
-            np.array(data, dtype=np.float32, order="C"),
-            n_points,
-            maxdim,
-            thresh,
-            coeff,
-            do_cocycles
-        )
+
+        if do_cycles:
+            res = DRFDMSparseCycles(
+                row.astype(dtype=np.int32, order="C"),
+                col.astype(dtype=np.int32, order="C"),
+                np.array(data, dtype=np.float32, order="C"),
+                n_points,
+                maxdim,
+                thresh,
+                coeff,
+            )
+        else:
+            res = DRFDMSparseCycles(
+                row.astype(dtype=np.int32, order="C"),
+                col.astype(dtype=np.int32, order="C"),
+                np.array(data, dtype=np.float32, order="C"),
+                n_points,
+                maxdim,
+                thresh,
+                coeff,
+            )
     else:
         I, J = np.meshgrid(np.arange(n_points), np.arange(n_points))
         DParam = np.array(dm[I > J], dtype=np.float32)
-        res = DRFDM(DParam, maxdim, thresh, coeff, do_cocycles)
+        
+        res = DRFDMCycles(DParam,
+            maxdim,
+            thresh,
+            coeff
+        )
+       #
 
     # Unwrap persistence diagrams
     dgms = res["births_and_deaths_by_dim"]
     for dim in range(len(dgms)):
         N = int(len(dgms[dim]) / 2)
+        # print(dgms[dim])
         dgms[dim] = np.reshape(np.array(dgms[dim]), [N, 2])
 
-    # Unwrap cocycles
-    cocycles = []
-    for dim in range(len(res["cocycles_by_dim"])):
-        cocycles.append([])
-        for j in range(len(res["cocycles_by_dim"][dim])):
-            ccl = res["cocycles_by_dim"][dim][j]
-            n = int(len(ccl) / (dim + 2))
-            ccl = np.reshape(np.array(ccl, dtype=np.int64), [n, dim + 2])
-            ccl[:, -1] = np.mod(ccl[:, -1], coeff)
-            if doing_permutation:
-                # Retain original indices in the point cloud
-                ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
-            cocycles[dim].append(ccl)
+    # Unwrap cycles if calculated
+    for dim in range(len(res["cycles_by_dim"])):
+        cycles.append([])
+        for j in range(len(res["cycles_by_dim"][dim])):
+            ccl = res["cycles_by_dim"][dim][j]
+            n = int(len(ccl)/2)
+            ccl = np.reshape(np.array(ccl, dtype=np.int64), [n, 2])
 
+            ccl=np.concatenate((ccl[:1], ccl[2:], ccl[1].reshape(1, -1)), axis=0)
+
+            # ccl[:, -1] = np.mod(ccl[:, -1], coeff)
+            # if doing_permutation:
+                # Retain original indices in the point cloud
+                # ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
+            cycles[dim].append(ccl)                
+            pairs = np.array(res["dim_0_pairs"])
+            pairs = np.append(pairs, np.nan)
+            dim_0_pairs = np.reshape(pairs, (int(len(pairs) / 2), 2))
+    
     ret = {
         "dgms": dgms,
-        "cocycles": cocycles,
+        "dim_0_pairs": dim_0_pairs,
+        "cycles": cycles,
         "num_edges": res["num_edges"],
         "dperm2all": dperm2all,
         "idx_perm": idx_perm,
         "r_cover": r_cover,
     }
+
     return ret
 
 
@@ -430,6 +470,10 @@ class Rips(TransformerMixin):
         Indicator of whether to compute cocycles, if so, we compute and store
         cocycles in the `cocycles_` dictionary Rips member variable
 
+    do_cycles: bool
+        Indicator of whether to compute cycles, if so, we compute and store
+        cycles in the `cycles_` dictionary Rips member variable
+
     n_perm: int
         The number of points to subsample in a "greedy permutation,"
         or a furthest point sampling of the points.  These points
@@ -457,6 +501,11 @@ class Rips(TransformerMixin):
         of the cocycle.  The first d columns of each array index into
         the simplices of the (subsampled) point cloud, and the last column
         is the value of the cocycle at that simplex
+
+    cycles_: list (size maxdim) of list of ndarray
+        A list of representative cycles in each dimension.  The list 
+        in each dimension are the corresponding vertices which make up each 
+        topological feature
     
     dperm2all_: ndarray(n_samples, n_samples) or ndarray (n_perm, n_samples) if n_perm
         The distance matrix used in the computation if n_perm is none.
@@ -500,6 +549,7 @@ class Rips(TransformerMixin):
         maxdim=1,
         thresh=np.inf,
         coeff=2,
+        do_cycles=True,
         do_cocycles=False,
         n_perm=None,
         verbose=True,
@@ -507,12 +557,14 @@ class Rips(TransformerMixin):
         self.maxdim = maxdim
         self.thresh = thresh
         self.coeff = coeff
+        self.do_cycles = do_cycles
         self.do_cocycles = do_cocycles
         self.n_perm = n_perm
         self.verbose = verbose
 
         # Internal variables
         self.dgms_ = None
+        self.dim_0_pairs_ = None
         self.cocycles_ = None
         self.dperm2all_ = None  # Distance matrix
         self.metric_ = None
@@ -522,8 +574,8 @@ class Rips(TransformerMixin):
 
         if self.verbose:
             print(
-                "Rips(maxdim={}, thresh={}, coeff={}, do_cocycles={}, n_perm = {}, verbose={})".format(
-                    maxdim, thresh, coeff, do_cocycles, n_perm, verbose
+                "Rips(maxdim={}, thresh={}, coeff={}, do_cycles={}, do_cocycles={}, n_perm = {}, verbose={})".format(
+                    maxdim, thresh, coeff, do_cycles, do_cocycles, n_perm, verbose
                 )
             )
 
@@ -533,17 +585,23 @@ class Rips(TransformerMixin):
             maxdim=self.maxdim,
             thresh=self.thresh,
             coeff=self.coeff,
+            do_cycles = self.do_cycles,
             do_cocycles=self.do_cocycles,
             distance_matrix=distance_matrix,
             metric=metric,
             n_perm=self.n_perm,
         )
+        
         self.dgms_ = result["dgms"]
         self.num_edges_ = result["num_edges"]
         self.dperm2all_ = result["dperm2all"]
         self.idx_perm_ = result["idx_perm"]
-        self.cocycles_ = result["cocycles"]
+        
+        self.dim_0_pairs_ = result["dim_0_pairs"]
+        self.cycles_ = result["cycles"][-1]
+
         self.r_cover_ = result["r_cover"]
+
         return self.dgms_
 
     def fit_transform(self, X, distance_matrix=False, metric="euclidean"):
@@ -578,6 +636,33 @@ class Rips(TransformerMixin):
         """
         self.transform(X, distance_matrix, metric)
         return self.dgms_
+
+    def print_persistence(self):
+        if self.do_cycles:
+            print("Dim 0 Persistence Intervals:")
+            for i, interval in enumerate(self.dgms_[0]):
+                if i == len(self.dgms_[0]) - 1:
+                    print(f"[{interval[0]:.1f}, {interval[1]:.3f}): []")
+                    continue
+                print(f"[{interval[0]:.1f}, {interval[1]:.3f}): {self.dim_0_pairs_[i]}")
+
+            print("Dim 1 Persistence Intervals:")
+            for i, interval in enumerate(self.dgms_[1]):
+                print(f"[{interval[0]:.1f}, {interval[1]:.3f}): {[x.tolist() for x in self.cycles_[i]]}")
+
+        else:
+            print("Dim 0 Persistence Intervals:")
+            for i, interval in enumerate(self.dgms_[0]):
+                if i == len(self.dgms_[0]) - 1:
+                    print(f"[{interval[0]:.1f}, {interval[1]:.3f})")
+                    continue
+                print(f"[{interval[0]:.1f}, {interval[1]:.3f})")
+
+            print("Dim 1 Persistence Intervals:")
+            for i, interval in enumerate(self.dgms_[1]):
+                print(f"[{interval[0]:.1f}, {interval[1]:.3f})")
+
+
 
     def plot(
         self,
@@ -650,6 +735,5 @@ class Rips(TransformerMixin):
             *args,
             **kwargs
         )
-
 
 __all__ = ["Rips", "ripser", "lower_star_img"]
