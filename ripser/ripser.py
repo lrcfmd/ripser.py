@@ -32,6 +32,7 @@ from scipy import sparse
 import numpy as np
 from sklearn.base import TransformerMixin
 from sklearn.metrics.pairwise import pairwise_distances
+from scipy.spatial.distance import squareform
 
 import persim
 
@@ -40,6 +41,12 @@ from pyRipser import doRipsFiltrationDMCycles as DRFDMCycles
 # from pyRipser import doRipsFiltrationDMSparse as DRFDMSparse
 # from pyRipser import doRipsFiltrationDMSparseCycles as DRFDMSparseCycles
 
+
+def main():
+    rips = Rips()
+    dm = squareform([1.0, 1.0,1.41421356,1.41421356,1.0,1.0, 1.0,1.41421356,1.41421356,1.73205081, 1.41421356,1.0,1.73205081,1.41421356,1.0, 1.41421356,1.73205081,1.0,1.41421356,1.0,1.41421356, 1.73205081,1.41421356,1.41421356,1.0,1.41421356,1.0,1.0])
+    rips.fit_transform(dm, distance_matrix=True)
+    print()
 
 def dpoint2pointcloud(X, i, metric):
     """
@@ -302,6 +309,7 @@ def ripser(
             dm = X
         else:
             dm = pairwise_distances(X, metric=metric)
+
         dperm2all = dm
 
     n_points = dm.shape[0]
@@ -311,7 +319,6 @@ def ripser(
         # that's the only format that handles nonzero
         # births
         dm = sparse.coo_matrix(dm)
-
 
     if sparse.issparse(dm):
         if sparse.isspmatrix_coo(dm):
@@ -355,7 +362,7 @@ def ripser(
             coeff
         )
        #
-
+    print(res)
     # Unwrap persistence diagrams
     dgms = res["births_and_deaths_by_dim"]
     for dim in range(len(dgms)):
@@ -598,7 +605,7 @@ class Rips(TransformerMixin):
         self.idx_perm_ = result["idx_perm"]
         
         self.dim_0_pairs_ = result["dim_0_pairs"]
-        self.cycles_ = result["cycles"][-1]
+        self.cycles_ = result["cycles"]
 
         self.r_cover_ = result["r_cover"]
 
@@ -737,3 +744,6 @@ class Rips(TransformerMixin):
         )
 
 __all__ = ["Rips", "ripser", "lower_star_img"]
+
+if __name__=="__main__":
+    main()

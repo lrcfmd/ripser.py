@@ -394,7 +394,7 @@ struct ripserResults {
        so, for example births_and_deaths_by_dim[0] contains a list of
                 [birth0, death0, birth1, death1, ..., birthk, deathk]
        for k points in the 0D persistence diagram
-       and likewise for d-dimensional persistence in births_and_deaths_by_dim[d]
+    //    and likewise for d-dimensional persistence in births_and_deaths_by_dim[d]
     */
     std::vector<std::vector<value_t>> births_and_deaths_by_dim;
 	std::vector<index_t> dim_0_pairs;
@@ -479,8 +479,21 @@ public:
 	void copy_results(ripserResults& res)
     {
         res.births_and_deaths_by_dim = births_and_deaths_by_dim;
-        res.cycles_by_dim = cycles_by_dim;
+        
+		
+		res.cycles_by_dim = cycles_by_dim;
 		res.dim_0_pairs = dim_0_pairs;
+
+		// for  (size_t i = 0; i < cycles_by_dim[1].size(); ++i) {
+		// 		std::vector<long> current_chain = cycles_by_dim[1][i];
+		// 		std::vector<long>::iterator it;
+		// 		res.cycles_by_dim.push_back(current_chain);
+		// 		// for (it = current_chain.begin(); it != current_chain.end(); it++)
+		// 		// {
+		// 		// 	std::cout << *it << ", "; 
+		// 		// }
+		// 		// std::cout << std::endl;
+		// 	}
     }
 
 	value_t compute_diameter(const index_t index, index_t dim) const {
@@ -711,6 +724,7 @@ public:
 			if (get_index(e = get_pivot(cycle)) != -1) std::cout << ", ";
 		}
 		std::cout << "}" << std::endl;
+
 		return current_chain;
 	
 	}
@@ -874,6 +888,7 @@ public:
 
 						pivot = get_pivot(working_coboundary);
 					} else {
+						std::cout << "Here" << std::endl;
 						if (final_coboundary.empty()) {
 							pivot_column_index.insert({get_entry(pivot), index_column_to_reduce});
 
@@ -899,11 +914,19 @@ public:
 #endif
 						std::cout << "+[" << diameter << ", ):  ";
 						std::vector<long> current_chain = print_chain(working_reduction_column, dim);
+						
+						std::vector<long>::iterator it;
+						for (it = current_chain.begin(); it != current_chain.end(); it++)
+						{
+							std::cout << *it << ", ";
+						}
+						
 						cycles_by_dim[dim - 1].push_back(current_chain);
 						
 #endif
 
 					} else {
+						std::cout << "Here" << std::endl;
 						pivot = get_pivot(final_coboundary);
 						value_t death = get_diameter(pivot);
 						if (diameter > death * ratio) {
@@ -921,7 +944,14 @@ public:
 								// cycles_by_dim[dim - 1].push_back(current_chain);
 
 								std::cout << " [" << death << "," << diameter << "):  ";
+								
 								std::vector<long> current_chain = print_chain(final_coboundary, dim - 1);
+
+								std::vector<long>::iterator it;
+								for (it = current_chain.begin(); it != current_chain.end(); it++)
+								{
+									std::cout << *it << ", ";
+								}
 								cycles_by_dim[dim - 1].push_back(current_chain);
 							}
 						}
@@ -1522,9 +1552,39 @@ int main(int argc, char** argv) {
 			std::cout << "distance matrix with " << dist.size()
 			          << " points, using threshold at enclosing radius " << enclosing_radius
 			          << std::endl;
-			ripser<compressed_lower_distance_matrix>(std::move(dist), dim_max, enclosing_radius,
-			                                         ratio, modulus)
-			    .compute_barcodes();
+			ripser<compressed_lower_distance_matrix> rips(std::move(dist), dim_max, enclosing_radius,
+			                                         ratio, modulus);
+			rips.compute_barcodes();
+			
+			// for  (size_t i = 0; i < rips.cycles_by_dim[1].size(); ++i) {
+			// 	std::vector<long> current_chain = rips.cycles_by_dim[1][i];
+			// 	std::vector<long>::iterator it;
+			// 	for (it = current_chain.begin(); it != current_chain.end(); it++)
+			// 	{
+			// 		std::cout << *it << ", ";
+			// 	}
+			// 	std::cout << std::endl;
+			// }
+
+			ripserResults res;
+			// bool do_cocycles = false;	
+			// ripser<compressed_lower_distance_matrix> r(std::move(dist), dim_max, threshold, ratio, modulus);
+			// r.compute_barcodes();
+
+			rips.copy_results(res);
+			
+			
+			// for  (size_t i = 0; i < res.cycles_by_dim.size(); ++i) {
+			// 	std::vector<long> current_chain = res.cycles_by_dim[i];
+			// 	std::vector<long>::iterator it;
+			// 	for (it = current_chain.begin(); it != current_chain.end(); it++)
+			// 	{
+			// 		std::cout << *it << ", ";
+			// 	}
+			// 	std::cout << std::endl;
+			// }
+			
+			// std::cout << ripser.cycles_by_dim << std::endl;
 		} else {
 			std::cout << "sparse distance matrix with " << dist.size() << " points and "
 			          << num_edges << "/" << (dist.size() * dist.size() - 1) / 2 << " entries"
@@ -1585,6 +1645,7 @@ ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float th
 	r.compute_barcodes();
 
 	r.copy_results(res);
+	// res.cycles_by_dim = r.cycles_by_dim[1];
 
     res.num_edges = num_edges;
 
