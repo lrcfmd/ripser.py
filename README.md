@@ -12,10 +12,11 @@
 
 # Note this is a development branch, please go to https://github.com/scikit-tda/ripser.py for stable release
 
+```
 pip install cython
 pip install numpy matplotlib sklearn scipy persim
 python setup.py install 
-
+```
 
 
 
