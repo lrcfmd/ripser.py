@@ -668,7 +668,7 @@ public:
     {
         // TODO: Get correct birth times if the edges are negative (required for
         // lower star)
-        std::cout << "Entered compute_dim_0_pairs";
+        // std::cout << "Entered compute_dim_0_pairs";
         union_find dset(n);
         for (index_t i = 0; i < n; i++) {
             dset.set_birth(i, get_vertex_birth(i));

@@ -369,7 +369,7 @@ def ripser(
                 do_cocycles
             )
        #
-    print(res)
+    # print(res)
     # Unwrap persistence diagrams
     dgms = res["births_and_deaths_by_dim"]
     for dim in range(len(dgms)):
@@ -592,7 +592,7 @@ class Rips(TransformerMixin):
         n_perm=None,
         verbose=True,
     ):
-        print(do_cycles)
+        # print(do_cycles)
         self.maxdim = maxdim
         self.thresh = thresh
         self.coeff = coeff
