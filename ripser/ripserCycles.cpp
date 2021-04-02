@@ -607,8 +607,22 @@ public:
 		union_find dset(n);
 
 		edges = get_edges();
+		std::cout <<"Normal Edges" << std::endl;
+		for (auto e : edges) {
+			std::vector<index_t> vertices_of_edge(2);
+			get_simplex_vertices(get_index(e), 1, n, vertices_of_edge.rbegin());
+			std::cout << vertices_of_edge[0] << ", " << vertices_of_edge[1] << ", " << get_diameter(e) << std::endl;
+		}
+
 		std::sort(edges.rbegin(), edges.rend(),
 		          greater_diameter_or_smaller_index<diameter_index_t>());
+
+		std::cout <<"Sorted Edges" << std::endl;
+		for (auto e : edges) {
+			std::vector<index_t> vertices_of_edge(2);
+			get_simplex_vertices(get_index(e), 1, n, vertices_of_edge.rbegin());
+			std::cout << vertices_of_edge[0] << ", " << vertices_of_edge[1] << std::endl;
+		}
 
 #ifdef PRINT_PERSISTENCE_PAIRS
 		std::cout << "persistence intervals in dim 0:" << std::endl;
@@ -617,8 +631,9 @@ public:
 		std::vector<index_t> vertices_of_edge(2);
 		for (auto e : edges) {
 			get_simplex_vertices(get_index(e), 1, n, vertices_of_edge.rbegin());
+			std::cout << vertices_of_edge[0] << ", " << vertices_of_edge[1] << std::endl;
 			index_t u = dset.find(vertices_of_edge[0]), v = dset.find(vertices_of_edge[1]);
-
+			std::cout << u << ", " << v << std::endl;
 			if (u != v) {
 				value_t death = get_diameter(e);
 #ifdef PRINT_PERSISTENCE_PAIRS
@@ -872,9 +887,11 @@ public:
 					next = std::chrono::steady_clock::now() + time_step;
 				}
 #endif
+				std::cout << get_index(pivot) << std::endl;
 				if (get_index(pivot) != -1) {
 					auto pair = pivot_column_index.find(get_entry(pivot));
 					if (pair != pivot_column_index.end()) {
+						std::cout << "Line 878" << std::endl;
 						entry_t other_pivot = pair->first;
 						index_t index_column_to_add = pair->second;
 						coefficient_t factor =
@@ -888,7 +905,7 @@ public:
 
 						pivot = get_pivot(working_coboundary);
 					} else {
-						std::cout << "Here" << std::endl;
+						std::cout << "Line 893" << std::endl;
 						if (final_coboundary.empty()) {
 							pivot_column_index.insert({get_entry(pivot), index_column_to_reduce});
 
@@ -905,8 +922,11 @@ public:
 
 						final_coboundary.push(pop_pivot(working_coboundary));
 						pivot = get_pivot(working_coboundary);
+						std::cout << "Line 910" << std::endl;
+						std::cout << get_index(pivot) << std::endl;
 					}
 				} else {
+					std::cout << "Line 914" << std::endl;
 					if (final_coboundary.empty()) {
 #ifdef PRINT_PERSISTENCE_PAIRS
 #ifdef INDICATE_PROGRESS
@@ -926,7 +946,7 @@ public:
 #endif
 
 					} else {
-						std::cout << "Here" << std::endl;
+						std::cout << "930" << std::endl;
 						pivot = get_pivot(final_coboundary);
 						value_t death = get_diameter(pivot);
 						if (diameter > death * ratio) {
@@ -974,6 +994,10 @@ public:
         cycles_by_dim.resize(dim_max + 1);
 
 		compute_dim_0_pairs(simplices, columns_to_reduce);
+
+		for (diameter_index_t c: columns_to_reduce) {
+			std::cout << c.second << std::endl;
+		}
 
 		for (index_t dim = 1; dim <= dim_max; ++dim) {
 			entry_hash_map pivot_column_index;
@@ -1113,6 +1137,7 @@ public:
 template <> std::vector<diameter_index_t> ripser<compressed_lower_distance_matrix>::get_edges() {
 	std::vector<diameter_index_t> edges;
 	std::vector<index_t> vertices(2);
+	std::cout << threshold << std::endl;
 	for (index_t index = binomial_coeff(n, 2); index-- > 0;) {
 		get_simplex_vertices(index, 1, dist.size(), vertices.rbegin());
 		value_t length = dist(vertices[0], vertices[1]);
@@ -1526,6 +1551,8 @@ int main(int argc, char** argv) {
 		compressed_lower_distance_matrix dist =
 		    read_file(filename ? file_stream : std::cin, format);
 
+		
+
 		value_t min = std::numeric_limits<value_t>::infinity(),
 		        max = -std::numeric_limits<value_t>::infinity(), max_finite = max;
 		int num_edges = 0;
@@ -1552,9 +1579,18 @@ int main(int argc, char** argv) {
 			std::cout << "distance matrix with " << dist.size()
 			          << " points, using threshold at enclosing radius " << enclosing_radius
 			          << std::endl;
+			for (auto d : dist.distances) {
+				std::cout << d << std::endl;
+			}
+
 			ripser<compressed_lower_distance_matrix> rips(std::move(dist), dim_max, enclosing_radius,
 			                                         ratio, modulus);
+
+			std::cout << "Line 1565";
+
+
 			rips.compute_barcodes();
+
 			
 			// for  (size_t i = 0; i < rips.cycles_by_dim[1].size(); ++i) {
 			// 	std::vector<long> current_chain = rips.cycles_by_dim[1][i];
@@ -1604,8 +1640,13 @@ ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float th
 {
     // Setup distance matrix and figure out threshold
     std::vector<value_t> distances(D, D + N);
+
+	// std::vector<value_t> lower_dv;
+
+	// for (int i = 1; i < distances.size[0] )
+
     compressed_lower_distance_matrix dist = compressed_lower_distance_matrix(
-        compressed_upper_distance_matrix(std::move(distances)));
+		compressed_upper_distance_matrix(std::move(distances)));
 
     // TODO: This seems like a dummy parameter at the moment
     float ratio = 1.0;
@@ -1617,27 +1658,51 @@ ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float th
     /* Use enclosing radius when users does not set threshold or
      * when users uses infinity as a threshold
      */
-    if (threshold == std::numeric_limits<value_t>::max() ||
-        threshold == std::numeric_limits<value_t>::infinity()) {
-        value_t enclosing_radius = std::numeric_limits<value_t>::infinity();
-        for (size_t i = 0; i < dist.size(); ++i) {
-            value_t r_i = -std::numeric_limits<value_t>::infinity();
-            for (size_t j = 0; j < dist.size(); ++j)
-                r_i = std::max(r_i, dist(i, j));
-            enclosing_radius = std::min(enclosing_radius, r_i);
-        }
-        threshold = enclosing_radius;
-    }
+	value_t enclosing_radius = std::numeric_limits<value_t>::infinity();
+		
+	if (threshold == std::numeric_limits<value_t>::max()) {
+			for (size_t i = 0; i < dist.size(); ++i) {
+				value_t r_i = -std::numeric_limits<value_t>::infinity();
+				for (size_t j = 0; j < dist.size(); ++j) r_i = std::max(r_i, dist(i, j));
+				enclosing_radius = std::min(enclosing_radius, r_i);
+			}
+		}
+		
+		
+		for (auto d : dist.distances) {
+			min = std::min(min, d);
+			max = std::max(max, d);
+			max_finite =
+			    d != std::numeric_limits<value_t>::infinity() ? std::max(max, d) : max_finite;
+			if (d <= threshold) ++num_edges;
 
-    for (auto d : dist.distances) {
-        min = std::min(min, d);
-        max = std::max(max, d);
-        max_finite = d != std::numeric_limits<value_t>::infinity()
-                         ? std::max(max, d)
-                         : max_finite;
-        if (d <= threshold)
-            ++num_edges;
-    }
+			std::cout << d << std::endl;
+		}
+
+
+    // if (threshold == std::numeric_limits<value_t>::max() ||
+    //     threshold == std::numeric_limits<value_t>::infinity()) {
+    //     value_t enclosing_radius = std::numeric_limits<value_t>::infinity();
+    //     for (size_t i = 0; i < dist.size(); ++i) {
+    //         value_t r_i = -std::numeric_limits<value_t>::infinity();
+    //         for (size_t j = 0; j < dist.size(); ++j)
+    //             r_i = std::max(r_i, dist(i, j));
+    //         enclosing_radius = std::min(enclosing_radius, r_i);
+    //     }
+    //     threshold = enclosing_radius;
+    // }
+
+    // for (auto d : dist.distances) {
+    //     min = std::min(min, d);
+    //     max = std::max(max, d);
+    //     max_finite = d != std::numeric_limits<value_t>::infinity()
+    //                      ? std::max(max, d)
+    //                      : max_finite;
+    //     if (d <= threshold)
+    //         ++num_edges;
+
+	// 	std::cout << d << std::endl;
+    // }
 
     ripserResults res;
 	// bool do_cocycles = false;

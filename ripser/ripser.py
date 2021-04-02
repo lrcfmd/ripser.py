@@ -605,7 +605,7 @@ class Rips(TransformerMixin):
         self.idx_perm_ = result["idx_perm"]
         
         self.dim_0_pairs_ = result["dim_0_pairs"]
-        self.cycles_ = result["cycles"]
+        self.cycles_ = result["cycles"][-1]
 
         self.r_cover_ = result["r_cover"]
 
