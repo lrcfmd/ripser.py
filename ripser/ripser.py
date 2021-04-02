@@ -39,7 +39,7 @@ import persim
 # from pyRipser import doRipsFiltrationDM as DRFDM
 from pyRipser import doRipsFiltrationDMCycles as DRFDMCycles
 # from pyRipser import doRipsFiltrationDMSparse as DRFDMSparse
-# from pyRipser import doRipsFiltrationDMSparseCycles as DRFDMSparseCycles
+from pyRipser import doRipsFiltrationDMSparseCycles as DRFDMSparseCycles
 
 
 def main():

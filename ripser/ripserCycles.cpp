@@ -263,26 +263,89 @@ value_t compressed_upper_distance_matrix::operator()(const index_t i, const inde
 	return i == j ? 0 : i > j ? rows[j][i] : rows[i][j];
 }
 
+// struct sparse_distance_matrix {
+// 	std::vector<std::vector<index_diameter_t>> neighbors;
+
+// 	index_t num_edges;
+
+// 	sparse_distance_matrix(std::vector<std::vector<index_diameter_t>>&& _neighbors,
+// 	                       index_t _num_edges)
+// 	    : neighbors(std::move(_neighbors)), num_edges(_num_edges) {}
+
+// 	template <typename DistanceMatrix>
+// 	sparse_distance_matrix(const DistanceMatrix& mat, const value_t threshold)
+// 	    : neighbors(mat.size()), num_edges(0) {
+
+// 		for (size_t i = 0; i < size(); ++i)
+// 			for (size_t j = 0; j < size(); ++j)
+// 				if (i != j && mat(i, j) <= threshold) {
+// 					++num_edges;
+// 					neighbors[i].push_back({j, mat(i, j)});
+// 				}
+// 	}
+
+// 	value_t operator()(const index_t i, const index_t j) const {
+// 		for (auto neighbor : neighbors[i])
+// 			if (get_index(neighbor) == j) return get_diameter(neighbor);
+// 		return std::numeric_limits<value_t>::infinity();
+// 	}
+
+// 	size_t size() const { return neighbors.size(); }
+// };
+
 struct sparse_distance_matrix {
-	std::vector<std::vector<index_diameter_t>> neighbors;
+    std::vector<std::vector<index_diameter_t>> neighbors;
+    std::vector<value_t> vertex_births;
+    index_t num_edges;
 
-	index_t num_edges;
+    mutable std::vector<std::vector<index_diameter_t>::const_reverse_iterator>
+        neighbor_it;
+    mutable std::vector<std::vector<index_diameter_t>::const_reverse_iterator>
+        neighbor_end;
 
-	sparse_distance_matrix(std::vector<std::vector<index_diameter_t>>&& _neighbors,
-	                       index_t _num_edges)
-	    : neighbors(std::move(_neighbors)), num_edges(_num_edges) {}
+    sparse_distance_matrix(
+        std::vector<std::vector<index_diameter_t>>&& _neighbors,
+        index_t _num_edges)
+        : neighbors(std::move(_neighbors)), vertex_births(_neighbors.size(), 0),
+          num_edges(_num_edges)
+    {
+    }
 
-	template <typename DistanceMatrix>
-	sparse_distance_matrix(const DistanceMatrix& mat, const value_t threshold)
-	    : neighbors(mat.size()), num_edges(0) {
+    template <typename DistanceMatrix>
+    sparse_distance_matrix(const DistanceMatrix& mat, const value_t threshold)
+        : neighbors(mat.size()), vertex_births(mat.size(), 0), num_edges(0)
+    {
+        for (size_t i = 0; i < size(); ++i)
+            for (size_t j = 0; j < size(); ++j)
+                if (i != j && mat(i, j) <= threshold) {
+                    ++num_edges;
+                    neighbors[i].push_back({j, mat(i, j)});
+                }
+    }
 
-		for (size_t i = 0; i < size(); ++i)
-			for (size_t j = 0; j < size(); ++j)
-				if (i != j && mat(i, j) <= threshold) {
-					++num_edges;
-					neighbors[i].push_back({j, mat(i, j)});
-				}
-	}
+    // Initialize from COO format
+    sparse_distance_matrix(int* I, int* J, value_t* V, int NEdges, int N,
+                           const value_t threshold)
+        : neighbors(N), vertex_births(N, 0), num_edges(0)
+    {
+        int i, j;
+        value_t val;
+        for (int idx = 0; idx < NEdges; idx++) {
+            i = I[idx];
+            j = J[idx];
+            val = V[idx];
+            if (i < j && val <= threshold) {
+                neighbors[i].push_back(std::make_pair(j, val));
+                neighbors[j].push_back(std::make_pair(i, val));
+                ++num_edges;
+            } else if (i == j) {
+                vertex_births[i] = val;
+            }
+        }
+
+        for (size_t i = 0; i < neighbors.size(); ++i)
+            std::sort(neighbors[i].begin(), neighbors[i].end());
+    }
 
 	value_t operator()(const index_t i, const index_t j) const {
 		for (auto neighbor : neighbors[i])
@@ -290,7 +353,7 @@ struct sparse_distance_matrix {
 		return std::numeric_limits<value_t>::infinity();
 	}
 
-	size_t size() const { return neighbors.size(); }
+    size_t size() const { return neighbors.size(); }
 };
 
 struct euclidean_distance_matrix {
@@ -1679,31 +1742,6 @@ ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float th
 			std::cout << d << std::endl;
 		}
 
-
-    // if (threshold == std::numeric_limits<value_t>::max() ||
-    //     threshold == std::numeric_limits<value_t>::infinity()) {
-    //     value_t enclosing_radius = std::numeric_limits<value_t>::infinity();
-    //     for (size_t i = 0; i < dist.size(); ++i) {
-    //         value_t r_i = -std::numeric_limits<value_t>::infinity();
-    //         for (size_t j = 0; j < dist.size(); ++j)
-    //             r_i = std::max(r_i, dist(i, j));
-    //         enclosing_radius = std::min(enclosing_radius, r_i);
-    //     }
-    //     threshold = enclosing_radius;
-    // }
-
-    // for (auto d : dist.distances) {
-    //     min = std::min(min, d);
-    //     max = std::max(max, d);
-    //     max_finite = d != std::numeric_limits<value_t>::infinity()
-    //                      ? std::max(max, d)
-    //                      : max_finite;
-    //     if (d <= threshold)
-    //         ++num_edges;
-
-	// 	std::cout << d << std::endl;
-    // }
-
     ripserResults res;
 	// bool do_cocycles = false;
 	ripser<compressed_lower_distance_matrix> r(std::move(dist), dim_max, threshold, ratio, modulus);
@@ -1714,5 +1752,30 @@ ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float th
 
     res.num_edges = num_edges;
 
+    return res;
+}
+
+ripserResults rips_dm_sparse_cycles(int* I, int* J, float* V, int NEdges, int N,
+                             int modulus, int dim_max, float threshold)
+{
+	// ripser<sparse_distance_matrix>(sparse_distance_matrix(std::move(dist), threshold),
+	// 		                               dim_max, threshold, ratio, modulus)
+    // TODO: This seems like a dummy parameter at the moment
+    float ratio = 1.0;
+    // Setup distance matrix and figure out threshold
+    ripser<sparse_distance_matrix> r(
+        sparse_distance_matrix(I, J, V, NEdges, N, threshold), dim_max,
+        threshold, ratio, modulus);
+    r.compute_barcodes();
+    // Report the number of edges that were added
+    int num_edges = 0;
+    for (int idx = 0; idx < NEdges; idx++) {
+        if (I[idx] < J[idx] && V[idx] <= threshold) {
+            num_edges++;
+        }
+    }
+    ripserResults res;
+    r.copy_results(res);
+    res.num_edges = num_edges;
     return res;
 }

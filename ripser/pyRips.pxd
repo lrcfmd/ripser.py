@@ -19,3 +19,4 @@ cdef extern from "ripserCycles.cpp":
 
         # compute given the distance matrix D
         ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float threshold)
+        ripserResults rips_dm_sparse_cycles(int* I, int* J, float* V, int NEdges, int N, int modulus, int dim_max, float threshold)
