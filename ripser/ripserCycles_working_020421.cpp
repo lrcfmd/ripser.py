@@ -1,5 +1,5 @@
 /*
- ripserCycles: a lean C++ code for computation of Vietoris-Rips persistence barcodes
+ Ripser: a lean C++ code for computation of Vietoris-Rips persistence barcodes
  MIT License
  Copyright (c) 2015–2019 Ulrich Bauer
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -56,14 +56,14 @@ template <class Key> using hash = robin_hood::hash<Key>;
 
 #else
 
-// template <class Key, class T, class H, class E> using hash_map = std::unordered_map<Key, T, H, E>;
+template <class Key, class T, class H, class E> using hash_map = std::unordered_map<Key, T, H, E>;
 template <class Key> using hash = std::hash<Key>;
 
 #endif
 
 typedef float value_t;
 typedef int64_t index_t;
-// typedef uint16_t coefficient_t;
+typedef uint16_t coefficient_t;
 
 #ifdef INDICATE_PROGRESS
 static const std::chrono::milliseconds time_step(40);
@@ -71,28 +71,28 @@ static const std::chrono::milliseconds time_step(40);
 
 static const std::string clear_line("\r\033[K");
 
-// static const size_t num_coefficient_bits = 8;
+static const size_t num_coefficient_bits = 8;
 
-// static const index_t max_simplex_index =
-//     (1l << (8 * sizeof(index_t) - 1 - num_coefficient_bits)) - 1;
+static const index_t max_simplex_index =
+    (1l << (8 * sizeof(index_t) - 1 - num_coefficient_bits)) - 1;
 
-// void check_overflow(index_t i) {
-// 	if
-// #ifdef USE_COEFFICIENTS
-// 	    (i > max_simplex_index)
-// #else
-// 	    (i < 0)
-// #endif
-// 		throw std::overflow_error("simplex index " + std::to_string((uint64_t)i) +
-// 		                          " in filtration is larger than maximum index " +
-// 		                          std::to_string(max_simplex_index));
-// }
+void check_overflow(index_t i) {
+	if
+#ifdef USE_COEFFICIENTS
+	    (i > max_simplex_index)
+#else
+	    (i < 0)
+#endif
+		throw std::overflow_error("simplex index " + std::to_string((uint64_t)i) +
+		                          " in filtration is larger than maximum index " +
+		                          std::to_string(max_simplex_index));
+}
 
-class binomial_coeff_table_cycles {
+class binomial_coeff_table {
 	std::vector<std::vector<index_t>> B;
 
 public:
-	binomial_coeff_table_cycles(index_t n, index_t k) : B(n + 1) {
+	binomial_coeff_table(index_t n, index_t k) : B(n + 1) {
 		for (index_t i = 0; i <= n; ++i) {
 			B[i].resize(k + 1, 0);
 			B[i][0] = 1;
@@ -116,19 +116,19 @@ bool is_prime(const coefficient_t n) {
 	return true;
 }
 
-// coefficient_t normalize(const coefficient_t n, const coefficient_t modulus) {
-// 	return n > modulus / 2 ? n - modulus : n;
-// }
+coefficient_t normalize(const coefficient_t n, const coefficient_t modulus) {
+	return n > modulus / 2 ? n - modulus : n;
+}
 
-// std::vector<coefficient_t> multiplicative_inverse_vector(const coefficient_t m) {
-// 	std::vector<coefficient_t> inverse(m);
-// 	inverse[1] = 1;
-// 	// m = a * (m / a) + m % a
-// 	// Multipying with inverse(a) * inverse(m % a):
-// 	// 0 = inverse(m % a) * (m / a) + inverse(a)  (mod m)
-// 	for (coefficient_t a = 2; a < m; ++a) inverse[a] = m - (inverse[m % a] * (m / a)) % m;
-// 	return inverse;
-// }
+std::vector<coefficient_t> multiplicative_inverse_vector(const coefficient_t m) {
+	std::vector<coefficient_t> inverse(m);
+	inverse[1] = 1;
+	// m = a * (m / a) + m % a
+	// Multipying with inverse(a) * inverse(m % a):
+	// 0 = inverse(m % a) * (m / a) + inverse(a)  (mod m)
+	for (coefficient_t a = 2; a < m; ++a) inverse[a] = m - (inverse[m % a] * (m / a)) % m;
+	return inverse;
+}
 
 #ifdef USE_COEFFICIENTS
 
@@ -155,51 +155,51 @@ std::ostream& operator<<(std::ostream& stream, const entry_t& e) {
 
 #else
 
-// typedef index_t entry_t;
-// const index_t get_index(const entry_t& i) { return i; }
-// index_t get_coefficient(const entry_t& i) { return 1; }
-// entry_t make_entry(index_t _index, coefficient_t _value) { return entry_t(_index); }
-// void set_coefficient(entry_t& e, const coefficient_t c) {}
+typedef index_t entry_t;
+const index_t get_index(const entry_t& i) { return i; }
+index_t get_coefficient(const entry_t& i) { return 1; }
+entry_t make_entry(index_t _index, coefficient_t _value) { return entry_t(_index); }
+void set_coefficient(entry_t& e, const coefficient_t c) {}
 
 #endif
 
-// const entry_t& get_entry(const entry_t& e) { return e; }
+const entry_t& get_entry(const entry_t& e) { return e; }
 
-// typedef std::pair<value_t, index_t> diameter_index_t;
-// value_t get_diameter(const diameter_index_t& i) { return i.first; }
-// index_t get_index(const diameter_index_t& i) { return i.second; }
+typedef std::pair<value_t, index_t> diameter_index_t;
+value_t get_diameter(const diameter_index_t& i) { return i.first; }
+index_t get_index(const diameter_index_t& i) { return i.second; }
 
-// typedef std::pair<index_t, value_t> index_diameter_t;
-// index_t get_index(const index_diameter_t& i) { return i.first; }
-// value_t get_diameter(const index_diameter_t& i) { return i.second; }
+typedef std::pair<index_t, value_t> index_diameter_t;
+index_t get_index(const index_diameter_t& i) { return i.first; }
+value_t get_diameter(const index_diameter_t& i) { return i.second; }
 
-// struct diameter_entry_t : std::pair<value_t, entry_t> {
-// 	using std::pair<value_t, entry_t>::pair;
-// 	diameter_entry_t(value_t _diameter, index_t _index, coefficient_t _coefficient)
-// 	    : diameter_entry_t(_diameter, make_entry(_index, _coefficient)) {}
-// 	diameter_entry_t(const diameter_index_t& _diameter_index, coefficient_t _coefficient)
-// 	    : diameter_entry_t(get_diameter(_diameter_index),
-// 	                       make_entry(get_index(_diameter_index), _coefficient)) {}
-// 	diameter_entry_t(const index_t& _index) : diameter_entry_t(0, _index, 0) {}
-// };
+struct diameter_entry_t : std::pair<value_t, entry_t> {
+	using std::pair<value_t, entry_t>::pair;
+	diameter_entry_t(value_t _diameter, index_t _index, coefficient_t _coefficient)
+	    : diameter_entry_t(_diameter, make_entry(_index, _coefficient)) {}
+	diameter_entry_t(const diameter_index_t& _diameter_index, coefficient_t _coefficient)
+	    : diameter_entry_t(get_diameter(_diameter_index),
+	                       make_entry(get_index(_diameter_index), _coefficient)) {}
+	diameter_entry_t(const index_t& _index) : diameter_entry_t(0, _index, 0) {}
+};
 
-// const entry_t& get_entry(const diameter_entry_t& p) { return p.second; }
-// entry_t& get_entry(diameter_entry_t& p) { return p.second; }
-// const index_t get_index(const diameter_entry_t& p) { return get_index(get_entry(p)); }
-// const coefficient_t get_coefficient(const diameter_entry_t& p) {
-// 	return get_coefficient(get_entry(p));
-// }
-// const value_t& get_diameter(const diameter_entry_t& p) { return p.first; }
-// void set_coefficient(diameter_entry_t& p, const coefficient_t c) {
-// 	set_coefficient(get_entry(p), c);
-// }
+const entry_t& get_entry(const diameter_entry_t& p) { return p.second; }
+entry_t& get_entry(diameter_entry_t& p) { return p.second; }
+const index_t get_index(const diameter_entry_t& p) { return get_index(get_entry(p)); }
+const coefficient_t get_coefficient(const diameter_entry_t& p) {
+	return get_coefficient(get_entry(p));
+}
+const value_t& get_diameter(const diameter_entry_t& p) { return p.first; }
+void set_coefficient(diameter_entry_t& p, const coefficient_t c) {
+	set_coefficient(get_entry(p), c);
+}
 
-// template <typename Entry> struct greater_diameter_or_smaller_index {
-// 	bool operator()(const Entry& a, const Entry& b) {
-// 		return (get_diameter(a) > get_diameter(b)) ||
-// 		       ((get_diameter(a) == get_diameter(b)) && (get_index(a) < get_index(b)));
-// 	}
-// };
+template <typename Entry> struct greater_diameter_or_smaller_index {
+	bool operator()(const Entry& a, const Entry& b) {
+		return (get_diameter(a) > get_diameter(b)) ||
+		       ((get_diameter(a) == get_diameter(b)) && (get_index(a) < get_index(b)));
+	}
+};
 
 template <typename Entry> struct smaller_diameter_or_greater_index {
 	bool operator()(const Entry& a, const Entry& b) {
@@ -208,20 +208,20 @@ template <typename Entry> struct smaller_diameter_or_greater_index {
 	}
 };
 
-// enum compressed_matrix_layout { LOWER_TRIANGULAR, UPPER_TRIANGULAR };
+enum compressed_matrix_layout { LOWER_TRIANGULAR, UPPER_TRIANGULAR };
 
-template <compressed_matrix_layout Layout> struct compressed_distance_matrix_cycles {
+template <compressed_matrix_layout Layout> struct compressed_distance_matrix {
 	std::vector<value_t> distances;
 	std::vector<value_t*> rows;
 
-	compressed_distance_matrix_cycles(std::vector<value_t>&& _distances)
+	compressed_distance_matrix(std::vector<value_t>&& _distances)
 	    : distances(std::move(_distances)), rows((1 + std::sqrt(1 + 8 * distances.size())) / 2) {
 		assert(distances.size() == size() * (size() - 1) / 2);
 		init_rows();
 	}
 
 	template <typename DistanceMatrix>
-	compressed_distance_matrix_cycles(const DistanceMatrix& mat)
+	compressed_distance_matrix(const DistanceMatrix& mat)
 	    : distances(mat.size() * (mat.size() - 1) / 2), rows(mat.size()) {
 		init_rows();
 
@@ -234,10 +234,10 @@ template <compressed_matrix_layout Layout> struct compressed_distance_matrix_cyc
 	void init_rows();
 };
 
-typedef compressed_distance_matrix_cycles<LOWER_TRIANGULAR> compressed_lower_distance_matrix_cycles;
-typedef compressed_distance_matrix_cycles<UPPER_TRIANGULAR> compressed_upper_distance_matrix_cycles;
+typedef compressed_distance_matrix<LOWER_TRIANGULAR> compressed_lower_distance_matrix;
+typedef compressed_distance_matrix<UPPER_TRIANGULAR> compressed_upper_distance_matrix;
 
-template <> void compressed_lower_distance_matrix_cycles::init_rows() {
+template <> void compressed_lower_distance_matrix::init_rows() {
 	value_t* pointer = &distances[0];
 	for (size_t i = 1; i < size(); ++i) {
 		rows[i] = pointer;
@@ -245,7 +245,7 @@ template <> void compressed_lower_distance_matrix_cycles::init_rows() {
 	}
 }
 
-template <> void compressed_upper_distance_matrix_cycles::init_rows() {
+template <> void compressed_upper_distance_matrix::init_rows() {
 	value_t* pointer = &distances[0] - 1;
 	for (size_t i = 0; i < size() - 1; ++i) {
 		rows[i] = pointer;
@@ -254,26 +254,26 @@ template <> void compressed_upper_distance_matrix_cycles::init_rows() {
 }
 
 template <>
-value_t compressed_lower_distance_matrix_cycles::operator()(const index_t i, const index_t j) const {
+value_t compressed_lower_distance_matrix::operator()(const index_t i, const index_t j) const {
 	return i == j ? 0 : i < j ? rows[j][i] : rows[i][j];
 }
 
 template <>
-value_t compressed_upper_distance_matrix_cycles::operator()(const index_t i, const index_t j) const {
+value_t compressed_upper_distance_matrix::operator()(const index_t i, const index_t j) const {
 	return i == j ? 0 : i > j ? rows[j][i] : rows[i][j];
 }
 
-// struct sparse_distance_matrix_cycles {
+// struct sparse_distance_matrix {
 // 	std::vector<std::vector<index_diameter_t>> neighbors;
 
 // 	index_t num_edges;
 
-// 	sparse_distance_matrix_cycles(std::vector<std::vector<index_diameter_t>>&& _neighbors,
+// 	sparse_distance_matrix(std::vector<std::vector<index_diameter_t>>&& _neighbors,
 // 	                       index_t _num_edges)
 // 	    : neighbors(std::move(_neighbors)), num_edges(_num_edges) {}
 
 // 	template <typename DistanceMatrix>
-// 	sparse_distance_matrix_cycles(const DistanceMatrix& mat, const value_t threshold)
+// 	sparse_distance_matrix(const DistanceMatrix& mat, const value_t threshold)
 // 	    : neighbors(mat.size()), num_edges(0) {
 
 // 		for (size_t i = 0; i < size(); ++i)
@@ -293,7 +293,7 @@ value_t compressed_upper_distance_matrix_cycles::operator()(const index_t i, con
 // 	size_t size() const { return neighbors.size(); }
 // };
 
-struct sparse_distance_matrix_cycles {
+struct sparse_distance_matrix {
     std::vector<std::vector<index_diameter_t>> neighbors;
     std::vector<value_t> vertex_births;
     index_t num_edges;
@@ -303,7 +303,7 @@ struct sparse_distance_matrix_cycles {
     mutable std::vector<std::vector<index_diameter_t>::const_reverse_iterator>
         neighbor_end;
 
-    sparse_distance_matrix_cycles(
+    sparse_distance_matrix(
         std::vector<std::vector<index_diameter_t>>&& _neighbors,
         index_t _num_edges)
         : neighbors(std::move(_neighbors)), vertex_births(_neighbors.size(), 0),
@@ -312,7 +312,7 @@ struct sparse_distance_matrix_cycles {
     }
 
     template <typename DistanceMatrix>
-    sparse_distance_matrix_cycles(const DistanceMatrix& mat, const value_t threshold)
+    sparse_distance_matrix(const DistanceMatrix& mat, const value_t threshold)
         : neighbors(mat.size()), vertex_births(mat.size(), 0), num_edges(0)
     {
         for (size_t i = 0; i < size(); ++i)
@@ -324,7 +324,7 @@ struct sparse_distance_matrix_cycles {
     }
 
     // Initialize from COO format
-    sparse_distance_matrix_cycles(int* I, int* J, value_t* V, int NEdges, int N,
+    sparse_distance_matrix(int* I, int* J, value_t* V, int NEdges, int N,
                            const value_t threshold)
         : neighbors(N), vertex_births(N, 0), num_edges(0)
     {
@@ -375,12 +375,12 @@ struct euclidean_distance_matrix {
 	size_t size() const { return points.size(); }
 };
 
-class union_find_cycles {
+class union_find {
 	std::vector<index_t> parent;
 	std::vector<uint8_t> rank;
 
 public:
-	union_find_cycles(const index_t n) : parent(n), rank(n, 0) {
+	union_find(const index_t n) : parent(n), rank(n, 0) {
 		for (index_t i = 0; i < n; ++i) parent[i] = i;
 	}
 
@@ -405,10 +405,10 @@ public:
 	}
 };
 
-// template <typename T> T begin(std::pair<T, T>& p) { return p.first; }
-// template <typename T> T end(std::pair<T, T>& p) { return p.second; }
+template <typename T> T begin(std::pair<T, T>& p) { return p.first; }
+template <typename T> T end(std::pair<T, T>& p) { return p.second; }
 
-template <typename ValueType> class compressed_sparse_matrix_cycles {
+template <typename ValueType> class compressed_sparse_matrix {
 	std::vector<size_t> bounds;
 	std::vector<ValueType> entries;
 
@@ -450,9 +450,9 @@ index_t get_max(index_t top, const index_t bottom, const Predicate pred) {
 
 
 
-/* This is the data structure from which the results of running ripserCycles can be
+/* This is the data structure from which the results of running ripser can be
  * returned */
-struct ripserResultsCycles {
+struct ripserResults {
     /* The first variable is a vector of unrolled persistence diagrams
        so, for example births_and_deaths_by_dim[0] contains a list of
                 [birth0, death0, birth1, death1, ..., birthk, deathk]
@@ -484,13 +484,13 @@ struct ripserResultsCycles {
 
 
 
-template <typename DistanceMatrix> class ripserCycles {
+template <typename DistanceMatrix> class ripser {
 	const DistanceMatrix dist;
 	const index_t n, dim_max;
 	const value_t threshold;
 	const float ratio;
 	const coefficient_t modulus;
-	const binomial_coeff_table_cycles binomial_coeff;
+	const binomial_coeff_table binomial_coeff;
 	const std::vector<coefficient_t> multiplicative_inverse;
 	mutable std::vector<diameter_entry_t> cofacet_entries;
 	mutable std::vector<index_t> vertices;
@@ -512,7 +512,7 @@ public:
     mutable std::vector<std::vector<std::vector<long>>> cycles_by_dim;
 	mutable std::vector<index_t> dim_0_pairs;
 
-	ripserCycles(DistanceMatrix&& _dist, index_t _dim_max, value_t _threshold, float _ratio,
+	ripser(DistanceMatrix&& _dist, index_t _dim_max, value_t _threshold, float _ratio,
 	       coefficient_t _modulus)
 	    : dist(std::move(_dist)), n(dist.size()),
 	      dim_max(std::min(_dim_max, index_t(dist.size() - 2))), threshold(_threshold),
@@ -539,7 +539,7 @@ public:
 		return out;
 	}
 
-	void copy_results(ripserResultsCycles& res)
+	void copy_results(ripserResults& res)
     {
         res.births_and_deaths_by_dim = births_and_deaths_by_dim;
         
@@ -579,13 +579,13 @@ public:
 		index_t idx_below, idx_above, j, k;
 		const diameter_entry_t simplex;
 		const coefficient_t modulus;
-		const binomial_coeff_table_cycles& binomial_coeff;
+		const binomial_coeff_table& binomial_coeff;
 		const index_t dim;
-		const ripserCycles& parent;
+		const ripser& parent;
 
 	public:
 		simplex_boundary_enumerator(const diameter_entry_t _simplex, const index_t _dim,
-		                            const ripserCycles& _parent)
+		                            const ripser& _parent)
 		    : idx_below(get_index(_simplex)), idx_above(0), j(_parent.n - 1), k(_dim),
 		      simplex(_simplex), modulus(_parent.modulus), binomial_coeff(_parent.binomial_coeff),
 		      dim(_dim), parent(_parent) {}
@@ -667,7 +667,7 @@ public:
 		std::cout << "persistence intervals in dim 0:" << std::endl;
 #endif
 
-		union_find_cycles dset(n);
+		union_find dset(n);
 
 		edges = get_edges();
 		std::cout <<"Normal Edges" << std::endl;
@@ -897,7 +897,7 @@ public:
 	}
 
 	template <typename BoundaryEnumerator, typename Column>
-	void add_coboundary(compressed_sparse_matrix_cycles<diameter_entry_t>& reduction_matrix,
+	void add_coboundary(compressed_sparse_matrix<diameter_entry_t>& reduction_matrix,
 	                    const std::vector<diameter_index_t>& columns_to_reduce,
 	                    const size_t index_column_to_add, const coefficient_t factor,
 	                    const size_t& dim, Column& working_reduction_column,
@@ -922,7 +922,7 @@ public:
 			std::cout << "persistence intervals in dim " << dim - 1 << ":" << std::endl;
 #endif
 
-		compressed_sparse_matrix_cycles<diameter_entry_t> reduction_matrix;
+		compressed_sparse_matrix<diameter_entry_t> reduction_matrix;
 
 #ifdef INDICATE_PROGRESS
 		std::chrono::steady_clock::time_point next = std::chrono::steady_clock::now() + time_step;
@@ -1100,17 +1100,17 @@ public:
 	}
 };
 
-template <> class ripserCycles<compressed_lower_distance_matrix_cycles>::simplex_coboundary_enumerator {
+template <> class ripser<compressed_lower_distance_matrix>::simplex_coboundary_enumerator {
 	index_t idx_below, idx_above, j, k;
 	std::vector<index_t> vertices;
 	const diameter_entry_t simplex;
 	const coefficient_t modulus;
-	const compressed_lower_distance_matrix_cycles& dist;
-	const binomial_coeff_table_cycles& binomial_coeff;
+	const compressed_lower_distance_matrix& dist;
+	const binomial_coeff_table& binomial_coeff;
 
 public:
 	simplex_coboundary_enumerator(const diameter_entry_t _simplex, const index_t _dim,
-	                              const ripserCycles& parent)
+	                              const ripser& parent)
 	    : idx_below(get_index(_simplex)), idx_above(0), j(parent.n - 1), k(_dim + 1),
 	      vertices(_dim + 1), simplex(_simplex), modulus(parent.modulus), dist(parent.dist),
 	      binomial_coeff(parent.binomial_coeff) {
@@ -1138,20 +1138,20 @@ public:
 	}
 };
 
-template <> class ripserCycles<sparse_distance_matrix_cycles>::simplex_coboundary_enumerator {
+template <> class ripser<sparse_distance_matrix>::simplex_coboundary_enumerator {
 	index_t idx_below, idx_above, k;
 	std::vector<index_t> vertices;
 	const diameter_entry_t simplex;
 	const coefficient_t modulus;
-	const sparse_distance_matrix_cycles& dist;
-	const binomial_coeff_table_cycles& binomial_coeff;
+	const sparse_distance_matrix& dist;
+	const binomial_coeff_table& binomial_coeff;
 	std::vector<std::vector<index_diameter_t>::const_reverse_iterator> neighbor_it;
 	std::vector<std::vector<index_diameter_t>::const_reverse_iterator> neighbor_end;
 	index_diameter_t neighbor;
 
 public:
 	simplex_coboundary_enumerator(const diameter_entry_t _simplex, const index_t _dim,
-	                              const ripserCycles& _parent)
+	                              const ripser& _parent)
 	    : idx_below(get_index(_simplex)), idx_above(0), k(_dim + 1), vertices(_dim + 1),
 	      simplex(_simplex), modulus(_parent.modulus), dist(_parent.dist),
 	      binomial_coeff(_parent.binomial_coeff) {
@@ -1197,7 +1197,7 @@ public:
 	}
 };
 
-template <> std::vector<diameter_index_t> ripserCycles<compressed_lower_distance_matrix_cycles>::get_edges() {
+template <> std::vector<diameter_index_t> ripser<compressed_lower_distance_matrix>::get_edges() {
 	std::vector<diameter_index_t> edges;
 	std::vector<index_t> vertices(2);
 	std::cout << threshold << std::endl;
@@ -1209,7 +1209,7 @@ template <> std::vector<diameter_index_t> ripserCycles<compressed_lower_distance
 	return edges;
 }
 
-template <> std::vector<diameter_index_t> ripserCycles<sparse_distance_matrix_cycles>::get_edges() {
+template <> std::vector<diameter_index_t> ripser<sparse_distance_matrix>::get_edges() {
 	std::vector<diameter_index_t> edges;
 	for (index_t i = 0; i < n; ++i)
 		for (auto n : dist.neighbors[i]) {
@@ -1240,7 +1240,7 @@ template <typename T> T read(std::istream& input_stream) {
 	return result;
 }
 
-compressed_lower_distance_matrix_cycles read_point_cloud(std::istream& input_stream) {
+compressed_lower_distance_matrix read_point_cloud(std::istream& input_stream) {
 	std::vector<std::vector<value_t>> points;
 
 	std::string line;
@@ -1265,10 +1265,10 @@ compressed_lower_distance_matrix_cycles read_point_cloud(std::istream& input_str
 	for (int i = 0; i < n; ++i)
 		for (int j = 0; j < i; ++j) distances.push_back(eucl_dist(i, j));
 
-	return compressed_lower_distance_matrix_cycles(std::move(distances));
+	return compressed_lower_distance_matrix(std::move(distances));
 }
 
-sparse_distance_matrix_cycles read_sparse_distance_matrix(std::istream& input_stream) {
+sparse_distance_matrix read_sparse_distance_matrix(std::istream& input_stream) {
 	std::vector<std::vector<index_diameter_t>> neighbors;
 	index_t num_edges = 0;
 
@@ -1291,10 +1291,10 @@ sparse_distance_matrix_cycles read_sparse_distance_matrix(std::istream& input_st
 	for (size_t i = 0; i < neighbors.size(); ++i)
 		std::sort(neighbors[i].begin(), neighbors[i].end());
 
-	return sparse_distance_matrix_cycles(std::move(neighbors), num_edges);
+	return sparse_distance_matrix(std::move(neighbors), num_edges);
 }
 
-compressed_lower_distance_matrix_cycles read_lower_distance_matrix(std::istream& input_stream) {
+compressed_lower_distance_matrix read_lower_distance_matrix(std::istream& input_stream) {
 	std::vector<value_t> distances;
 	value_t value;
 	while (input_stream >> value) {
@@ -1302,10 +1302,10 @@ compressed_lower_distance_matrix_cycles read_lower_distance_matrix(std::istream&
 		input_stream.ignore();
 	}
 
-	return compressed_lower_distance_matrix_cycles(std::move(distances));
+	return compressed_lower_distance_matrix(std::move(distances));
 }
 
-compressed_lower_distance_matrix_cycles read_upper_distance_matrix(std::istream& input_stream) {
+compressed_lower_distance_matrix read_upper_distance_matrix(std::istream& input_stream) {
 	std::vector<value_t> distances;
 	value_t value;
 	while (input_stream >> value) {
@@ -1313,10 +1313,10 @@ compressed_lower_distance_matrix_cycles read_upper_distance_matrix(std::istream&
 		input_stream.ignore();
 	}
 
-	return compressed_lower_distance_matrix_cycles(compressed_upper_distance_matrix_cycles(std::move(distances)));
+	return compressed_lower_distance_matrix(compressed_upper_distance_matrix(std::move(distances)));
 }
 
-compressed_lower_distance_matrix_cycles read_distance_matrix(std::istream& input_stream) {
+compressed_lower_distance_matrix read_distance_matrix(std::istream& input_stream) {
 	std::vector<value_t> distances;
 
 	std::string line;
@@ -1329,10 +1329,10 @@ compressed_lower_distance_matrix_cycles read_distance_matrix(std::istream& input
 		}
 	}
 
-	return compressed_lower_distance_matrix_cycles(std::move(distances));
+	return compressed_lower_distance_matrix(std::move(distances));
 }
 
-compressed_lower_distance_matrix_cycles read_dipha(std::istream& input_stream) {
+compressed_lower_distance_matrix read_dipha(std::istream& input_stream) {
 	if (read<int64_t>(input_stream) != 8067171840) {
 		std::cerr << "input is not a Dipha file (magic number: 8067171840)" << std::endl;
 		exit(-1);
@@ -1354,16 +1354,16 @@ compressed_lower_distance_matrix_cycles read_dipha(std::istream& input_stream) {
 			else
 				read<double>(input_stream);
 
-	return compressed_lower_distance_matrix_cycles(std::move(distances));
+	return compressed_lower_distance_matrix(std::move(distances));
 }
 
-compressed_lower_distance_matrix_cycles read_binary(std::istream& input_stream) {
+compressed_lower_distance_matrix read_binary(std::istream& input_stream) {
 	std::vector<value_t> distances;
 	while (!input_stream.eof()) distances.push_back(read<value_t>(input_stream));
-	return compressed_lower_distance_matrix_cycles(std::move(distances));
+	return compressed_lower_distance_matrix(std::move(distances));
 }
 
-compressed_lower_distance_matrix_cycles read_file(std::istream& input_stream, const file_format format) {
+compressed_lower_distance_matrix read_file(std::istream& input_stream, const file_format format) {
 	switch (format) {
 	case LOWER_DISTANCE_MATRIX:
 		return read_lower_distance_matrix(input_stream);
@@ -1383,7 +1383,7 @@ compressed_lower_distance_matrix_cycles read_file(std::istream& input_stream, co
 void print_usage_and_exit(int exit_code) {
 	std::cerr
 	    << "Usage: "
-	    << "ripserCycles "
+	    << "ripser "
 	    << "[options] [filename]" << std::endl
 	    << std::endl
 	    << "Options:" << std::endl
@@ -1479,16 +1479,16 @@ void print_usage_and_exit(int exit_code) {
 // 	}
 
 // 	if (format == SPARSE) {
-// 		sparse_distance_matrix_cycles dist =
+// 		sparse_distance_matrix dist =
 // 		    read_sparse_distance_matrix(filename ? file_stream : std::cin);
 // 		std::cout << "sparse distance matrix with " << dist.size() << " points and "
 // 		          << dist.num_edges << "/" << (dist.size() * (dist.size() - 1)) / 2 << " entries"
 // 		          << std::endl;
 
-// 		ripserCycles<sparse_distance_matrix_cycles>(std::move(dist), dim_max, threshold, ratio, modulus)
+// 		ripser<sparse_distance_matrix>(std::move(dist), dim_max, threshold, ratio, modulus)
 // 		    .compute_barcodes();
 // 	} else {
-// 		compressed_lower_distance_matrix_cycles dist =
+// 		compressed_lower_distance_matrix dist =
 // 		    read_file(filename ? file_stream : std::cin, format);
 
 // 		value_t min = std::numeric_limits<value_t>::infinity(),
@@ -1517,7 +1517,7 @@ void print_usage_and_exit(int exit_code) {
 // 			std::cout << "distance matrix with " << dist.size()
 // 			          << " points, using threshold at enclosing radius " << enclosing_radius
 // 			          << std::endl;
-// 			ripserCycles<compressed_lower_distance_matrix_cycles>(std::move(dist), dim_max, enclosing_radius,
+// 			ripser<compressed_lower_distance_matrix>(std::move(dist), dim_max, enclosing_radius,
 // 			                                         ratio, modulus)
 // 			    .compute_barcodes();
 // 		} else {
@@ -1525,7 +1525,7 @@ void print_usage_and_exit(int exit_code) {
 // 			          << num_edges << "/" << (dist.size() * dist.size() - 1) / 2 << " entries"
 // 			          << std::endl;
 
-// 			ripserCycles<sparse_distance_matrix_cycles>(sparse_distance_matrix_cycles(std::move(dist), threshold),
+// 			ripser<sparse_distance_matrix>(sparse_distance_matrix(std::move(dist), threshold),
 // 			                               dim_max, threshold, ratio, modulus)
 // 			    .compute_barcodes();
 // 		}
@@ -1602,16 +1602,16 @@ int main(int argc, char** argv) {
 	}
 
 	if (format == SPARSE) {
-		sparse_distance_matrix_cycles dist =
+		sparse_distance_matrix dist =
 		    read_sparse_distance_matrix(filename ? file_stream : std::cin);
 		std::cout << "sparse distance matrix with " << dist.size() << " points and "
 		          << dist.num_edges << "/" << (dist.size() * (dist.size() - 1)) / 2 << " entries"
 		          << std::endl;
 
-		ripserCycles<sparse_distance_matrix_cycles>(std::move(dist), dim_max, threshold, ratio, modulus)
+		ripser<sparse_distance_matrix>(std::move(dist), dim_max, threshold, ratio, modulus)
 		    .compute_barcodes();
 	} else {
-		compressed_lower_distance_matrix_cycles dist =
+		compressed_lower_distance_matrix dist =
 		    read_file(filename ? file_stream : std::cin, format);
 
 		
@@ -1646,7 +1646,7 @@ int main(int argc, char** argv) {
 				std::cout << d << std::endl;
 			}
 
-			ripserCycles<compressed_lower_distance_matrix_cycles> rips(std::move(dist), dim_max, enclosing_radius,
+			ripser<compressed_lower_distance_matrix> rips(std::move(dist), dim_max, enclosing_radius,
 			                                         ratio, modulus);
 
 			std::cout << "Line 1565";
@@ -1665,9 +1665,9 @@ int main(int argc, char** argv) {
 			// 	std::cout << std::endl;
 			// }
 
-			ripserResultsCycles res;
+			ripserResults res;
 			// bool do_cocycles = false;	
-			// ripserCycles<compressed_lower_distance_matrix_cycles> r(std::move(dist), dim_max, threshold, ratio, modulus);
+			// ripser<compressed_lower_distance_matrix> r(std::move(dist), dim_max, threshold, ratio, modulus);
 			// r.compute_barcodes();
 
 			rips.copy_results(res);
@@ -1683,13 +1683,13 @@ int main(int argc, char** argv) {
 			// 	std::cout << std::endl;
 			// }
 			
-			// std::cout << ripserCycles.cycles_by_dim << std::endl;
+			// std::cout << ripser.cycles_by_dim << std::endl;
 		} else {
 			std::cout << "sparse distance matrix with " << dist.size() << " points and "
 			          << num_edges << "/" << (dist.size() * dist.size() - 1) / 2 << " entries"
 			          << std::endl;
 
-			ripserCycles<sparse_distance_matrix_cycles>(sparse_distance_matrix_cycles(std::move(dist), threshold),
+			ripser<sparse_distance_matrix>(sparse_distance_matrix(std::move(dist), threshold),
 			                               dim_max, threshold, ratio, modulus)
 			    .compute_barcodes();
 		}
@@ -1699,7 +1699,7 @@ int main(int argc, char** argv) {
 
 
 
-ripserResultsCycles rips_dm_cycles(float* D, int N, int modulus, int dim_max, float threshold)
+ripserResults rips_dm_cycles(float* D, int N, int modulus, int dim_max, float threshold)
 {
     // Setup distance matrix and figure out threshold
     std::vector<value_t> distances(D, D + N);
@@ -1708,8 +1708,8 @@ ripserResultsCycles rips_dm_cycles(float* D, int N, int modulus, int dim_max, fl
 
 	// for (int i = 1; i < distances.size[0] )
 
-    compressed_lower_distance_matrix_cycles dist = compressed_lower_distance_matrix_cycles(
-		compressed_upper_distance_matrix_cycles(std::move(distances)));
+    compressed_lower_distance_matrix dist = compressed_lower_distance_matrix(
+		compressed_upper_distance_matrix(std::move(distances)));
 
     // TODO: This seems like a dummy parameter at the moment
     float ratio = 1.0;
@@ -1742,9 +1742,9 @@ ripserResultsCycles rips_dm_cycles(float* D, int N, int modulus, int dim_max, fl
 			std::cout << d << std::endl;
 		}
 
-    ripserResultsCycles res;
+    ripserResults res;
 	// bool do_cocycles = false;
-	ripserCycles<compressed_lower_distance_matrix_cycles> r(std::move(dist), dim_max, threshold, ratio, modulus);
+	ripser<compressed_lower_distance_matrix> r(std::move(dist), dim_max, threshold, ratio, modulus);
 	r.compute_barcodes();
 
 	r.copy_results(res);
@@ -1755,16 +1755,16 @@ ripserResultsCycles rips_dm_cycles(float* D, int N, int modulus, int dim_max, fl
     return res;
 }
 
-ripserResultsCycles rips_dm_sparse_cycles(int* I, int* J, float* V, int NEdges, int N,
+ripserResults rips_dm_sparse_cycles(int* I, int* J, float* V, int NEdges, int N,
                              int modulus, int dim_max, float threshold)
 {
-	// ripserCycles<sparse_distance_matrix_cycles>(sparse_distance_matrix_cycles(std::move(dist), threshold),
+	// ripser<sparse_distance_matrix>(sparse_distance_matrix(std::move(dist), threshold),
 	// 		                               dim_max, threshold, ratio, modulus)
     // TODO: This seems like a dummy parameter at the moment
     float ratio = 1.0;
     // Setup distance matrix and figure out threshold
-    ripserCycles<sparse_distance_matrix_cycles> r(
-        sparse_distance_matrix_cycles(I, J, V, NEdges, N, threshold), dim_max,
+    ripser<sparse_distance_matrix> r(
+        sparse_distance_matrix(I, J, V, NEdges, N, threshold), dim_max,
         threshold, ratio, modulus);
     r.compute_barcodes();
     // Report the number of edges that were added
@@ -1774,7 +1774,7 @@ ripserResultsCycles rips_dm_sparse_cycles(int* I, int* J, float* V, int NEdges, 
             num_edges++;
         }
     }
-    ripserResultsCycles res;
+    ripserResults res;
     r.copy_results(res);
     res.num_edges = num_edges;
     return res;

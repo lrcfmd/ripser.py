@@ -18,6 +18,7 @@
             ]
         ],
         "depends": [
+            "ripser/ripser.cpp",
             "ripser/ripserCycles.cpp"
         ],
         "extra_compile_args": [
@@ -672,6 +673,7 @@ static CYTHON_INLINE float __PYX_NAN() {
 #include "stdexcept"
 #include "typeinfo"
 #include <vector>
+#include "ripser.cpp"
 #include "ripserCycles.cpp"
 #ifdef _OPENMP
 #include <omp.h>
@@ -1497,6 +1499,7 @@ typedef struct {
 #endif
 
 static PyObject* __pyx_convert__to_py_ripserResults(ripserResults s);
+static PyObject* __pyx_convert__to_py_ripserResultsCycles(ripserResultsCycles s);
 /* RealImag.proto */
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
@@ -1599,10 +1602,10 @@ static PyObject* __pyx_convert__to_py_ripserResults(ripserResults s);
 static CYTHON_INLINE int __Pyx_PyInt_As_int(PyObject *);
 
 /* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
 
 /* CIntToPy.proto */
-static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value);
+static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value);
 
 /* CIntFromPy.proto */
 static CYTHON_INLINE size_t __Pyx_PyInt_As_size_t(PyObject *);
@@ -1677,6 +1680,9 @@ static PyTypeObject *__pyx_ptype_5numpy_ufunc = 0;
 /* Module declarations from 'pyRipser' */
 static PyObject *__pyx_convert_vector_to_py_float(const std::vector<float>  &); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(const std::vector<std::vector<float> >  &); /*proto*/
+static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &); /*proto*/
+static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___(const std::vector<std::vector<int> >  &); /*proto*/
+static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___(const std::vector<std::vector<std::vector<int> > >  &); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_long(const std::vector<long>  &); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_long_3e___(const std::vector<std::vector<long> >  &); /*proto*/
 static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_long_3e____3e___(const std::vector<std::vector<std::vector<long> > >  &); /*proto*/
@@ -1710,10 +1716,13 @@ static const char __pyx_k_ImportError[] = "ImportError";
 static const char __pyx_k_dim_0_pairs[] = "dim_0_pairs";
 static const char __pyx_k_do_cocycles[] = "do_cocycles";
 static const char __pyx_k_cycles_by_dim[] = "cycles_by_dim";
+static const char __pyx_k_cocycles_by_dim[] = "cocycles_by_dim";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
+static const char __pyx_k_doRipsFiltrationDM[] = "doRipsFiltrationDM";
 static const char __pyx_k_ripser_pyRipser_pyx[] = "ripser/pyRipser.pyx";
 static const char __pyx_k_births_and_deaths_by_dim[] = "births_and_deaths_by_dim";
 static const char __pyx_k_doRipsFiltrationDMCycles[] = "doRipsFiltrationDMCycles";
+static const char __pyx_k_doRipsFiltrationDMSparse[] = "doRipsFiltrationDMSparse";
 static const char __pyx_k_doRipsFiltrationDMSparseCycles[] = "doRipsFiltrationDMSparseCycles";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
@@ -1726,10 +1735,13 @@ static PyObject *__pyx_n_s_NEdges;
 static PyObject *__pyx_n_s_V;
 static PyObject *__pyx_n_s_births_and_deaths_by_dim;
 static PyObject *__pyx_n_s_cline_in_traceback;
+static PyObject *__pyx_n_s_cocycles_by_dim;
 static PyObject *__pyx_n_s_coeff;
 static PyObject *__pyx_n_s_cycles_by_dim;
 static PyObject *__pyx_n_s_dim_0_pairs;
+static PyObject *__pyx_n_s_doRipsFiltrationDM;
 static PyObject *__pyx_n_s_doRipsFiltrationDMCycles;
+static PyObject *__pyx_n_s_doRipsFiltrationDMSparse;
 static PyObject *__pyx_n_s_doRipsFiltrationDMSparseCycles;
 static PyObject *__pyx_n_s_do_cocycles;
 static PyObject *__pyx_n_s_main;
@@ -1745,28 +1757,246 @@ static PyObject *__pyx_kp_s_ripser_pyRipser_pyx;
 static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_thresh;
-static PyObject *__pyx_pf_8pyRipser_doRipsFiltrationDMCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_DParam, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff); /* proto */
-static PyObject *__pyx_pf_8pyRipser_2doRipsFiltrationDMSparseCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_I, PyArrayObject *__pyx_v_J, PyArrayObject *__pyx_v_V, int __pyx_v_N, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, CYTHON_UNUSED int __pyx_v_do_cocycles); /* proto */
+static PyObject *__pyx_pf_8pyRipser_doRipsFiltrationDM(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_DParam, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, int __pyx_v_do_cocycles); /* proto */
+static PyObject *__pyx_pf_8pyRipser_2doRipsFiltrationDMCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_DParam, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff); /* proto */
+static PyObject *__pyx_pf_8pyRipser_4doRipsFiltrationDMSparse(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_I, PyArrayObject *__pyx_v_J, PyArrayObject *__pyx_v_V, int __pyx_v_N, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, int __pyx_v_do_cocycles); /* proto */
+static PyObject *__pyx_pf_8pyRipser_6doRipsFiltrationDMSparseCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_I, PyArrayObject *__pyx_v_J, PyArrayObject *__pyx_v_V, int __pyx_v_N, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, CYTHON_UNUSED int __pyx_v_do_cocycles); /* proto */
 static PyObject *__pyx_tuple_;
 static PyObject *__pyx_tuple__2;
 static PyObject *__pyx_tuple__3;
 static PyObject *__pyx_tuple__5;
+static PyObject *__pyx_tuple__7;
+static PyObject *__pyx_tuple__9;
 static PyObject *__pyx_codeobj__4;
 static PyObject *__pyx_codeobj__6;
+static PyObject *__pyx_codeobj__8;
+static PyObject *__pyx_codeobj__10;
 /* Late includes */
 
 /* "pyRipser.pyx":9
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ * def doRipsFiltrationDM(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
  * 
- * 	cdef int N = DParam.shape[0]
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_8pyRipser_1doRipsFiltrationDMCycles = {"doRipsFiltrationDMCycles", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDM(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_8pyRipser_1doRipsFiltrationDM = {"doRipsFiltrationDM", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pyRipser_1doRipsFiltrationDM, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDM(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyArrayObject *__pyx_v_DParam = 0;
+  int __pyx_v_maxHomDim;
+  float __pyx_v_thresh;
+  int __pyx_v_coeff;
+  int __pyx_v_do_cocycles;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("doRipsFiltrationDM (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_DParam,&__pyx_n_s_maxHomDim,&__pyx_n_s_thresh,&__pyx_n_s_coeff,&__pyx_n_s_do_cocycles,0};
+    PyObject* values[5] = {0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_DParam)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_maxHomDim)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDM", 0, 2, 5, 1); __PYX_ERR(0, 9, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_thresh);
+          if (value) { values[2] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_coeff);
+          if (value) { values[3] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  4:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_do_cocycles);
+          if (value) { values[4] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "doRipsFiltrationDM") < 0)) __PYX_ERR(0, 9, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_DParam = ((PyArrayObject *)values[0]);
+    __pyx_v_maxHomDim = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxHomDim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+    if (values[2]) {
+      __pyx_v_thresh = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_thresh == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+    } else {
+      __pyx_v_thresh = ((float)-1.0);
+    }
+    if (values[3]) {
+      __pyx_v_coeff = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_coeff == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+    } else {
+      __pyx_v_coeff = ((int)2);
+    }
+    if (values[4]) {
+      __pyx_v_do_cocycles = __Pyx_PyObject_IsTrue(values[4]); if (unlikely((__pyx_v_do_cocycles == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+    } else {
+      __pyx_v_do_cocycles = ((int)0);
+    }
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDM", 0, 2, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 9, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("pyRipser.doRipsFiltrationDM", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_DParam), __pyx_ptype_5numpy_ndarray, 0, "DParam", 0))) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_r = __pyx_pf_8pyRipser_doRipsFiltrationDM(__pyx_self, __pyx_v_DParam, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_coeff, __pyx_v_do_cocycles);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_8pyRipser_doRipsFiltrationDM(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_DParam, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, int __pyx_v_do_cocycles) {
+  int __pyx_v_N;
+  ripserResults __pyx_v_res;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_DParam;
+  __Pyx_Buffer __pyx_pybuffer_DParam;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  Py_ssize_t __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("doRipsFiltrationDM", 0);
+  __pyx_pybuffer_DParam.pybuffer.buf = NULL;
+  __pyx_pybuffer_DParam.refcount = 0;
+  __pyx_pybuffernd_DParam.data = NULL;
+  __pyx_pybuffernd_DParam.rcbuffer = &__pyx_pybuffer_DParam;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_DParam.rcbuffer->pybuffer, (PyObject*)__pyx_v_DParam, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 9, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_DParam.diminfo[0].strides = __pyx_pybuffernd_DParam.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_DParam.diminfo[0].shape = __pyx_pybuffernd_DParam.rcbuffer->pybuffer.shape[0];
+
+  /* "pyRipser.pyx":10
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDM(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):
+ *     cdef int N = DParam.shape[0]             # <<<<<<<<<<<<<<
+ * 
+ *     res = pyRips.rips_dm(&DParam[0], N, coeff, maxHomDim, thresh, do_cocycles)
+ */
+  __pyx_v_N = (__pyx_v_DParam->dimensions[0]);
+
+  /* "pyRipser.pyx":12
+ *     cdef int N = DParam.shape[0]
+ * 
+ *     res = pyRips.rips_dm(&DParam[0], N, coeff, maxHomDim, thresh, do_cocycles)             # <<<<<<<<<<<<<<
+ * 
+ *     return res
+ */
+  __pyx_t_1 = 0;
+  __pyx_v_res = rips_dm((&(*__Pyx_BufPtrCContig1d(float *, __pyx_pybuffernd_DParam.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_DParam.diminfo[0].strides))), __pyx_v_N, __pyx_v_coeff, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_do_cocycles);
+
+  /* "pyRipser.pyx":14
+ *     res = pyRips.rips_dm(&DParam[0], N, coeff, maxHomDim, thresh, do_cocycles)
+ * 
+ *     return res             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = __pyx_convert__to_py_ripserResults(__pyx_v_res); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 14, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
+
+  /* "pyRipser.pyx":9
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDM(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_DParam.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("pyRipser.doRipsFiltrationDM", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_DParam.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyRipser.pyx":19
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
+ * 
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_8pyRipser_3doRipsFiltrationDMCycles = {"doRipsFiltrationDMCycles", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pyRipser_3doRipsFiltrationDMCycles, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_DParam = 0;
   int __pyx_v_maxHomDim;
   float __pyx_v_thresh;
@@ -1804,7 +2034,7 @@ static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles(PyObject *__pyx_se
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_maxHomDim)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMCycles", 0, 2, 4, 1); __PYX_ERR(0, 9, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMCycles", 0, 2, 4, 1); __PYX_ERR(0, 19, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -1820,7 +2050,7 @@ static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles(PyObject *__pyx_se
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "doRipsFiltrationDMCycles") < 0)) __PYX_ERR(0, 9, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "doRipsFiltrationDMCycles") < 0)) __PYX_ERR(0, 19, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -1835,28 +2065,28 @@ static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles(PyObject *__pyx_se
       }
     }
     __pyx_v_DParam = ((PyArrayObject *)values[0]);
-    __pyx_v_maxHomDim = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxHomDim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+    __pyx_v_maxHomDim = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_maxHomDim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
     if (values[2]) {
-      __pyx_v_thresh = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_thresh == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+      __pyx_v_thresh = __pyx_PyFloat_AsFloat(values[2]); if (unlikely((__pyx_v_thresh == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
     } else {
       __pyx_v_thresh = ((float)-1.0);
     }
     if (values[3]) {
-      __pyx_v_coeff = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_coeff == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 9, __pyx_L3_error)
+      __pyx_v_coeff = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_coeff == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 19, __pyx_L3_error)
     } else {
       __pyx_v_coeff = ((int)2);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMCycles", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 9, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMCycles", 0, 2, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 19, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pyRipser.doRipsFiltrationDMCycles", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_DParam), __pyx_ptype_5numpy_ndarray, 0, "DParam", 0))) __PYX_ERR(0, 9, __pyx_L1_error)
-  __pyx_r = __pyx_pf_8pyRipser_doRipsFiltrationDMCycles(__pyx_self, __pyx_v_DParam, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_coeff);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_DParam), __pyx_ptype_5numpy_ndarray, 0, "DParam", 0))) __PYX_ERR(0, 19, __pyx_L1_error)
+  __pyx_r = __pyx_pf_8pyRipser_2doRipsFiltrationDMCycles(__pyx_self, __pyx_v_DParam, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_coeff);
 
   /* function exit code */
   goto __pyx_L0;
@@ -1867,9 +2097,9 @@ static PyObject *__pyx_pw_8pyRipser_1doRipsFiltrationDMCycles(PyObject *__pyx_se
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8pyRipser_doRipsFiltrationDMCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_DParam, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff) {
+static PyObject *__pyx_pf_8pyRipser_2doRipsFiltrationDMCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_DParam, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff) {
   int __pyx_v_N;
-  ripserResults __pyx_v_res;
+  ripserResultsCycles __pyx_v_res;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_DParam;
   __Pyx_Buffer __pyx_pybuffer_DParam;
   PyObject *__pyx_r = NULL;
@@ -1886,49 +2116,49 @@ static PyObject *__pyx_pf_8pyRipser_doRipsFiltrationDMCycles(CYTHON_UNUSED PyObj
   __pyx_pybuffernd_DParam.rcbuffer = &__pyx_pybuffer_DParam;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_DParam.rcbuffer->pybuffer, (PyObject*)__pyx_v_DParam, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 9, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_DParam.rcbuffer->pybuffer, (PyObject*)__pyx_v_DParam, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 19, __pyx_L1_error)
   }
   __pyx_pybuffernd_DParam.diminfo[0].strides = __pyx_pybuffernd_DParam.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_DParam.diminfo[0].shape = __pyx_pybuffernd_DParam.rcbuffer->pybuffer.shape[0];
 
-  /* "pyRipser.pyx":11
+  /* "pyRipser.pyx":20
+ * @cython.wraparound(False)
  * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):
+ *     cdef int N = DParam.shape[0]             # <<<<<<<<<<<<<<
  * 
- * 	cdef int N = DParam.shape[0]             # <<<<<<<<<<<<<<
- * 
- * 	res = pyRips.rips_dm_cycles(&DParam[0], N, coeff, maxHomDim, thresh)
+ *     res = pyRips.rips_dm_cycles(&DParam[0], N, coeff, maxHomDim, thresh)
  */
   __pyx_v_N = (__pyx_v_DParam->dimensions[0]);
 
-  /* "pyRipser.pyx":13
- * 	cdef int N = DParam.shape[0]
+  /* "pyRipser.pyx":22
+ *     cdef int N = DParam.shape[0]
  * 
- * 	res = pyRips.rips_dm_cycles(&DParam[0], N, coeff, maxHomDim, thresh)             # <<<<<<<<<<<<<<
+ *     res = pyRips.rips_dm_cycles(&DParam[0], N, coeff, maxHomDim, thresh)             # <<<<<<<<<<<<<<
  * 
- * 	return res
+ *     return res
  */
   __pyx_t_1 = 0;
   __pyx_v_res = rips_dm_cycles((&(*__Pyx_BufPtrCContig1d(float *, __pyx_pybuffernd_DParam.rcbuffer->pybuffer.buf, __pyx_t_1, __pyx_pybuffernd_DParam.diminfo[0].strides))), __pyx_v_N, __pyx_v_coeff, __pyx_v_maxHomDim, __pyx_v_thresh);
 
-  /* "pyRipser.pyx":15
- * 	res = pyRips.rips_dm_cycles(&DParam[0], N, coeff, maxHomDim, thresh)
+  /* "pyRipser.pyx":24
+ *     res = pyRips.rips_dm_cycles(&DParam[0], N, coeff, maxHomDim, thresh)
  * 
- * 	return res             # <<<<<<<<<<<<<<
+ *     return res             # <<<<<<<<<<<<<<
  * 
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_2 = __pyx_convert__to_py_ripserResults(__pyx_v_res); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 15, __pyx_L1_error)
+  __pyx_t_2 = __pyx_convert__to_py_ripserResultsCycles(__pyx_v_res); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "pyRipser.pyx":9
+  /* "pyRipser.pyx":19
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
  * 
- * 	cdef int N = DParam.shape[0]
  */
 
   /* function exit code */
@@ -1951,18 +2181,300 @@ static PyObject *__pyx_pf_8pyRipser_doRipsFiltrationDMCycles(CYTHON_UNUSED PyObj
   return __pyx_r;
 }
 
-/* "pyRipser.pyx":20
+/* "pyRipser.pyx":29
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
- * 	cdef int NEdges = I.size
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ * def doRipsFiltrationDMSparse(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int NEdges = I.size
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_8pyRipser_3doRipsFiltrationDMSparseCycles = {"doRipsFiltrationDMSparseCycles", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_8pyRipser_5doRipsFiltrationDMSparse(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_8pyRipser_5doRipsFiltrationDMSparse = {"doRipsFiltrationDMSparse", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pyRipser_5doRipsFiltrationDMSparse, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8pyRipser_5doRipsFiltrationDMSparse(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyArrayObject *__pyx_v_I = 0;
+  PyArrayObject *__pyx_v_J = 0;
+  PyArrayObject *__pyx_v_V = 0;
+  int __pyx_v_N;
+  int __pyx_v_maxHomDim;
+  float __pyx_v_thresh;
+  int __pyx_v_coeff;
+  int __pyx_v_do_cocycles;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("doRipsFiltrationDMSparse (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_I,&__pyx_n_s_J,&__pyx_n_s_V,&__pyx_n_s_N,&__pyx_n_s_maxHomDim,&__pyx_n_s_thresh,&__pyx_n_s_coeff,&__pyx_n_s_do_cocycles,0};
+    PyObject* values[8] = {0,0,0,0,0,0,0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        CYTHON_FALLTHROUGH;
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        CYTHON_FALLTHROUGH;
+        case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        CYTHON_FALLTHROUGH;
+        case  3: values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        CYTHON_FALLTHROUGH;
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_I)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_J)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparse", 0, 5, 8, 1); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  2:
+        if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_V)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparse", 0, 5, 8, 2); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  3:
+        if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_N)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparse", 0, 5, 8, 3); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  4:
+        if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_maxHomDim)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparse", 0, 5, 8, 4); __PYX_ERR(0, 29, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  5:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_thresh);
+          if (value) { values[5] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  6:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_coeff);
+          if (value) { values[6] = value; kw_args--; }
+        }
+        CYTHON_FALLTHROUGH;
+        case  7:
+        if (kw_args > 0) {
+          PyObject* value = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_do_cocycles);
+          if (value) { values[7] = value; kw_args--; }
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "doRipsFiltrationDMSparse") < 0)) __PYX_ERR(0, 29, __pyx_L3_error)
+      }
+    } else {
+      switch (PyTuple_GET_SIZE(__pyx_args)) {
+        case  8: values[7] = PyTuple_GET_ITEM(__pyx_args, 7);
+        CYTHON_FALLTHROUGH;
+        case  7: values[6] = PyTuple_GET_ITEM(__pyx_args, 6);
+        CYTHON_FALLTHROUGH;
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
+        case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+        values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
+        values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
+        values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_I = ((PyArrayObject *)values[0]);
+    __pyx_v_J = ((PyArrayObject *)values[1]);
+    __pyx_v_V = ((PyArrayObject *)values[2]);
+    __pyx_v_N = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    __pyx_v_maxHomDim = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_maxHomDim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    if (values[5]) {
+      __pyx_v_thresh = __pyx_PyFloat_AsFloat(values[5]); if (unlikely((__pyx_v_thresh == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    } else {
+      __pyx_v_thresh = ((float)-1.0);
+    }
+    if (values[6]) {
+      __pyx_v_coeff = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_coeff == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    } else {
+      __pyx_v_coeff = ((int)2);
+    }
+    if (values[7]) {
+      __pyx_v_do_cocycles = __Pyx_PyObject_IsTrue(values[7]); if (unlikely((__pyx_v_do_cocycles == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L3_error)
+    } else {
+      __pyx_v_do_cocycles = ((int)0);
+    }
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparse", 0, 5, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 29, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("pyRipser.doRipsFiltrationDMSparse", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_I), __pyx_ptype_5numpy_ndarray, 0, "I", 0))) __PYX_ERR(0, 29, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_J), __pyx_ptype_5numpy_ndarray, 0, "J", 0))) __PYX_ERR(0, 29, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_V), __pyx_ptype_5numpy_ndarray, 0, "V", 0))) __PYX_ERR(0, 29, __pyx_L1_error)
+  __pyx_r = __pyx_pf_8pyRipser_4doRipsFiltrationDMSparse(__pyx_self, __pyx_v_I, __pyx_v_J, __pyx_v_V, __pyx_v_N, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_coeff, __pyx_v_do_cocycles);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_8pyRipser_4doRipsFiltrationDMSparse(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_I, PyArrayObject *__pyx_v_J, PyArrayObject *__pyx_v_V, int __pyx_v_N, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, int __pyx_v_do_cocycles) {
+  int __pyx_v_NEdges;
+  ripserResults __pyx_v_res;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_I;
+  __Pyx_Buffer __pyx_pybuffer_I;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_J;
+  __Pyx_Buffer __pyx_pybuffer_J;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_V;
+  __Pyx_Buffer __pyx_pybuffer_V;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("doRipsFiltrationDMSparse", 0);
+  __pyx_pybuffer_I.pybuffer.buf = NULL;
+  __pyx_pybuffer_I.refcount = 0;
+  __pyx_pybuffernd_I.data = NULL;
+  __pyx_pybuffernd_I.rcbuffer = &__pyx_pybuffer_I;
+  __pyx_pybuffer_J.pybuffer.buf = NULL;
+  __pyx_pybuffer_J.refcount = 0;
+  __pyx_pybuffernd_J.data = NULL;
+  __pyx_pybuffernd_J.rcbuffer = &__pyx_pybuffer_J;
+  __pyx_pybuffer_V.pybuffer.buf = NULL;
+  __pyx_pybuffer_V.refcount = 0;
+  __pyx_pybuffernd_V.data = NULL;
+  __pyx_pybuffernd_V.rcbuffer = &__pyx_pybuffer_V;
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_I.rcbuffer->pybuffer, (PyObject*)__pyx_v_I, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 29, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_I.diminfo[0].strides = __pyx_pybuffernd_I.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_I.diminfo[0].shape = __pyx_pybuffernd_I.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_J.rcbuffer->pybuffer, (PyObject*)__pyx_v_J, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 29, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_J.diminfo[0].strides = __pyx_pybuffernd_J.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_J.diminfo[0].shape = __pyx_pybuffernd_J.rcbuffer->pybuffer.shape[0];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_V.rcbuffer->pybuffer, (PyObject*)__pyx_v_V, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 29, __pyx_L1_error)
+  }
+  __pyx_pybuffernd_V.diminfo[0].strides = __pyx_pybuffernd_V.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_V.diminfo[0].shape = __pyx_pybuffernd_V.rcbuffer->pybuffer.shape[0];
+
+  /* "pyRipser.pyx":31
+ * def doRipsFiltrationDMSparse(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):
+ * 
+ *     cdef int NEdges = I.size             # <<<<<<<<<<<<<<
+ * 
+ *     res = pyRips.rips_dm_sparse(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh, do_cocycles)
+ */
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_I), __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 31, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 31, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_v_NEdges = __pyx_t_2;
+
+  /* "pyRipser.pyx":33
+ *     cdef int NEdges = I.size
+ * 
+ *     res = pyRips.rips_dm_sparse(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh, do_cocycles)             # <<<<<<<<<<<<<<
+ * 
+ *     return res
+ */
+  __pyx_t_3 = 0;
+  __pyx_t_4 = 0;
+  __pyx_t_5 = 0;
+  __pyx_v_res = rips_dm_sparse((&(*__Pyx_BufPtrCContig1d(int *, __pyx_pybuffernd_I.rcbuffer->pybuffer.buf, __pyx_t_3, __pyx_pybuffernd_I.diminfo[0].strides))), (&(*__Pyx_BufPtrCContig1d(int *, __pyx_pybuffernd_J.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_J.diminfo[0].strides))), (&(*__Pyx_BufPtrCContig1d(float *, __pyx_pybuffernd_V.rcbuffer->pybuffer.buf, __pyx_t_5, __pyx_pybuffernd_V.diminfo[0].strides))), __pyx_v_NEdges, __pyx_v_N, __pyx_v_coeff, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_do_cocycles);
+
+  /* "pyRipser.pyx":35
+ *     res = pyRips.rips_dm_sparse(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh, do_cocycles)
+ * 
+ *     return res             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __pyx_convert__to_py_ripserResults(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 35, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "pyRipser.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMSparse(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int NEdges = I.size
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_I.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_J.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_V.rcbuffer->pybuffer);
+  __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
+  __Pyx_AddTraceback("pyRipser.doRipsFiltrationDMSparse", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  goto __pyx_L2;
+  __pyx_L0:;
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_I.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_J.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_V.rcbuffer->pybuffer);
+  __pyx_L2:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pyRipser.pyx":40
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ *     cdef int NEdges = I.size
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_8pyRipser_7doRipsFiltrationDMSparseCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_8pyRipser_7doRipsFiltrationDMSparseCycles = {"doRipsFiltrationDMSparseCycles", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_8pyRipser_7doRipsFiltrationDMSparseCycles, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_8pyRipser_7doRipsFiltrationDMSparseCycles(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_I = 0;
   PyArrayObject *__pyx_v_J = 0;
   PyArrayObject *__pyx_v_V = 0;
@@ -2012,25 +2524,25 @@ static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles(PyObject *__
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_J)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 1); __PYX_ERR(0, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 1); __PYX_ERR(0, 40, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_V)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 2); __PYX_ERR(0, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 2); __PYX_ERR(0, 40, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_N)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 3); __PYX_ERR(0, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 3); __PYX_ERR(0, 40, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_maxHomDim)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 4); __PYX_ERR(0, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, 4); __PYX_ERR(0, 40, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  5:
@@ -2052,7 +2564,7 @@ static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles(PyObject *__
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "doRipsFiltrationDMSparseCycles") < 0)) __PYX_ERR(0, 20, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "doRipsFiltrationDMSparseCycles") < 0)) __PYX_ERR(0, 40, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -2074,36 +2586,36 @@ static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles(PyObject *__
     __pyx_v_I = ((PyArrayObject *)values[0]);
     __pyx_v_J = ((PyArrayObject *)values[1]);
     __pyx_v_V = ((PyArrayObject *)values[2]);
-    __pyx_v_N = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L3_error)
-    __pyx_v_maxHomDim = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_maxHomDim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L3_error)
+    __pyx_v_N = __Pyx_PyInt_As_int(values[3]); if (unlikely((__pyx_v_N == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L3_error)
+    __pyx_v_maxHomDim = __Pyx_PyInt_As_int(values[4]); if (unlikely((__pyx_v_maxHomDim == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L3_error)
     if (values[5]) {
-      __pyx_v_thresh = __pyx_PyFloat_AsFloat(values[5]); if (unlikely((__pyx_v_thresh == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L3_error)
+      __pyx_v_thresh = __pyx_PyFloat_AsFloat(values[5]); if (unlikely((__pyx_v_thresh == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L3_error)
     } else {
       __pyx_v_thresh = ((float)-1.0);
     }
     if (values[6]) {
-      __pyx_v_coeff = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_coeff == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L3_error)
+      __pyx_v_coeff = __Pyx_PyInt_As_int(values[6]); if (unlikely((__pyx_v_coeff == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L3_error)
     } else {
       __pyx_v_coeff = ((int)2);
     }
     if (values[7]) {
-      __pyx_v_do_cocycles = __Pyx_PyObject_IsTrue(values[7]); if (unlikely((__pyx_v_do_cocycles == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 20, __pyx_L3_error)
+      __pyx_v_do_cocycles = __Pyx_PyObject_IsTrue(values[7]); if (unlikely((__pyx_v_do_cocycles == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L3_error)
     } else {
       __pyx_v_do_cocycles = ((int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 20, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("doRipsFiltrationDMSparseCycles", 0, 5, 8, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 40, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pyRipser.doRipsFiltrationDMSparseCycles", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_I), __pyx_ptype_5numpy_ndarray, 0, "I", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_J), __pyx_ptype_5numpy_ndarray, 0, "J", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_V), __pyx_ptype_5numpy_ndarray, 0, "V", 0))) __PYX_ERR(0, 20, __pyx_L1_error)
-  __pyx_r = __pyx_pf_8pyRipser_2doRipsFiltrationDMSparseCycles(__pyx_self, __pyx_v_I, __pyx_v_J, __pyx_v_V, __pyx_v_N, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_coeff, __pyx_v_do_cocycles);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_I), __pyx_ptype_5numpy_ndarray, 0, "I", 0))) __PYX_ERR(0, 40, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_J), __pyx_ptype_5numpy_ndarray, 0, "J", 0))) __PYX_ERR(0, 40, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_V), __pyx_ptype_5numpy_ndarray, 0, "V", 0))) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_r = __pyx_pf_8pyRipser_6doRipsFiltrationDMSparseCycles(__pyx_self, __pyx_v_I, __pyx_v_J, __pyx_v_V, __pyx_v_N, __pyx_v_maxHomDim, __pyx_v_thresh, __pyx_v_coeff, __pyx_v_do_cocycles);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2114,9 +2626,9 @@ static PyObject *__pyx_pw_8pyRipser_3doRipsFiltrationDMSparseCycles(PyObject *__
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_8pyRipser_2doRipsFiltrationDMSparseCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_I, PyArrayObject *__pyx_v_J, PyArrayObject *__pyx_v_V, int __pyx_v_N, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, CYTHON_UNUSED int __pyx_v_do_cocycles) {
+static PyObject *__pyx_pf_8pyRipser_6doRipsFiltrationDMSparseCycles(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_I, PyArrayObject *__pyx_v_J, PyArrayObject *__pyx_v_V, int __pyx_v_N, int __pyx_v_maxHomDim, float __pyx_v_thresh, int __pyx_v_coeff, CYTHON_UNUSED int __pyx_v_do_cocycles) {
   int __pyx_v_NEdges;
-  ripserResults __pyx_v_res;
+  ripserResultsCycles __pyx_v_res;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_I;
   __Pyx_Buffer __pyx_pybuffer_I;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_J;
@@ -2148,62 +2660,62 @@ static PyObject *__pyx_pf_8pyRipser_2doRipsFiltrationDMSparseCycles(CYTHON_UNUSE
   __pyx_pybuffernd_V.rcbuffer = &__pyx_pybuffer_V;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_I.rcbuffer->pybuffer, (PyObject*)__pyx_v_I, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 20, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_I.rcbuffer->pybuffer, (PyObject*)__pyx_v_I, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 40, __pyx_L1_error)
   }
   __pyx_pybuffernd_I.diminfo[0].strides = __pyx_pybuffernd_I.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_I.diminfo[0].shape = __pyx_pybuffernd_I.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_J.rcbuffer->pybuffer, (PyObject*)__pyx_v_J, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 20, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_J.rcbuffer->pybuffer, (PyObject*)__pyx_v_J, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 40, __pyx_L1_error)
   }
   __pyx_pybuffernd_J.diminfo[0].strides = __pyx_pybuffernd_J.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_J.diminfo[0].shape = __pyx_pybuffernd_J.rcbuffer->pybuffer.shape[0];
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_V.rcbuffer->pybuffer, (PyObject*)__pyx_v_V, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 20, __pyx_L1_error)
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_V.rcbuffer->pybuffer, (PyObject*)__pyx_v_V, &__Pyx_TypeInfo_float, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) __PYX_ERR(0, 40, __pyx_L1_error)
   }
   __pyx_pybuffernd_V.diminfo[0].strides = __pyx_pybuffernd_V.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_V.diminfo[0].shape = __pyx_pybuffernd_V.rcbuffer->pybuffer.shape[0];
 
-  /* "pyRipser.pyx":21
+  /* "pyRipser.pyx":41
  * @cython.wraparound(False)
  * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):
- * 	cdef int NEdges = I.size             # <<<<<<<<<<<<<<
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
- * 	return res
+ *     cdef int NEdges = I.size             # <<<<<<<<<<<<<<
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ *     return res
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_I), __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_I), __pyx_n_s_size); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 21, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 41, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_NEdges = __pyx_t_2;
 
-  /* "pyRipser.pyx":22
+  /* "pyRipser.pyx":42
  * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):
- * 	cdef int NEdges = I.size
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)             # <<<<<<<<<<<<<<
- * 	return res
+ *     cdef int NEdges = I.size
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)             # <<<<<<<<<<<<<<
+ *     return res
  */
   __pyx_t_3 = 0;
   __pyx_t_4 = 0;
   __pyx_t_5 = 0;
   __pyx_v_res = rips_dm_sparse_cycles((&(*__Pyx_BufPtrCContig1d(int *, __pyx_pybuffernd_I.rcbuffer->pybuffer.buf, __pyx_t_3, __pyx_pybuffernd_I.diminfo[0].strides))), (&(*__Pyx_BufPtrCContig1d(int *, __pyx_pybuffernd_J.rcbuffer->pybuffer.buf, __pyx_t_4, __pyx_pybuffernd_J.diminfo[0].strides))), (&(*__Pyx_BufPtrCContig1d(float *, __pyx_pybuffernd_V.rcbuffer->pybuffer.buf, __pyx_t_5, __pyx_pybuffernd_V.diminfo[0].strides))), __pyx_v_NEdges, __pyx_v_N, __pyx_v_coeff, __pyx_v_maxHomDim, __pyx_v_thresh);
 
-  /* "pyRipser.pyx":23
- * 	cdef int NEdges = I.size
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
- * 	return res             # <<<<<<<<<<<<<<
+  /* "pyRipser.pyx":43
+ *     cdef int NEdges = I.size
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ *     return res             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_convert__to_py_ripserResults(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_t_1 = __pyx_convert__to_py_ripserResultsCycles(__pyx_v_res); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "pyRipser.pyx":20
+  /* "pyRipser.pyx":40
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
- * 	cdef int NEdges = I.size
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ *     cdef int NEdges = I.size
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
  */
 
   /* function exit code */
@@ -3369,6 +3881,177 @@ static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(con
   return __pyx_r;
 }
 
+static PyObject *__pyx_convert_vector_to_py_int(const std::vector<int>  &__pyx_v_v) {
+  size_t __pyx_v_i;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  size_t __pyx_t_2;
+  size_t __pyx_t_3;
+  size_t __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_int", 0);
+
+  /* "vector.to_py":61
+ * @cname("__pyx_convert_vector_to_py_int")
+ * cdef object __pyx_convert_vector_to_py_int(vector[X]& v):
+ *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 61, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __pyx_v_v.size();
+  __pyx_t_3 = __pyx_t_2;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_i = __pyx_t_4;
+    __pyx_t_5 = __Pyx_PyInt_From_int((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  }
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "vector.to_py":60
+ * 
+ * @cname("__pyx_convert_vector_to_py_int")
+ * cdef object __pyx_convert_vector_to_py_int(vector[X]& v):             # <<<<<<<<<<<<<<
+ *     return [v[i] for i in range(v.size())]
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_int", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___(const std::vector<std::vector<int> >  &__pyx_v_v) {
+  size_t __pyx_v_i;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  size_t __pyx_t_2;
+  size_t __pyx_t_3;
+  size_t __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___", 0);
+
+  /* "vector.to_py":61
+ * @cname("__pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___")
+ * cdef object __pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___(vector[X]& v):
+ *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 61, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __pyx_v_v.size();
+  __pyx_t_3 = __pyx_t_2;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_i = __pyx_t_4;
+    __pyx_t_5 = __pyx_convert_vector_to_py_int((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  }
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "vector.to_py":60
+ * 
+ * @cname("__pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___")
+ * cdef object __pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___(vector[X]& v):             # <<<<<<<<<<<<<<
+ *     return [v[i] for i in range(v.size())]
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___(const std::vector<std::vector<std::vector<int> > >  &__pyx_v_v) {
+  size_t __pyx_v_i;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  size_t __pyx_t_2;
+  size_t __pyx_t_3;
+  size_t __pyx_t_4;
+  PyObject *__pyx_t_5 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___", 0);
+
+  /* "vector.to_py":61
+ * @cname("__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___")
+ * cdef object __pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___(vector[X]& v):
+ *     return [v[i] for i in range(v.size())]             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 61, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __pyx_v_v.size();
+  __pyx_t_3 = __pyx_t_2;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_i = __pyx_t_4;
+    __pyx_t_5 = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_int_3e___((__pyx_v_v[__pyx_v_i])); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_5))) __PYX_ERR(2, 61, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  }
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "vector.to_py":60
+ * 
+ * @cname("__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___")
+ * cdef object __pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___(vector[X]& v):             # <<<<<<<<<<<<<<
+ *     return [v[i] for i in range(v.size())]
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("vector.to_py.__pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
 static PyObject *__pyx_convert_vector_to_py_long(const std::vector<long>  &__pyx_v_v) {
   size_t __pyx_v_i;
   PyObject *__pyx_r = NULL;
@@ -3595,10 +4278,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_V, __pyx_k_V, sizeof(__pyx_k_V), 0, 0, 1, 1},
   {&__pyx_n_s_births_and_deaths_by_dim, __pyx_k_births_and_deaths_by_dim, sizeof(__pyx_k_births_and_deaths_by_dim), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
+  {&__pyx_n_s_cocycles_by_dim, __pyx_k_cocycles_by_dim, sizeof(__pyx_k_cocycles_by_dim), 0, 0, 1, 1},
   {&__pyx_n_s_coeff, __pyx_k_coeff, sizeof(__pyx_k_coeff), 0, 0, 1, 1},
   {&__pyx_n_s_cycles_by_dim, __pyx_k_cycles_by_dim, sizeof(__pyx_k_cycles_by_dim), 0, 0, 1, 1},
   {&__pyx_n_s_dim_0_pairs, __pyx_k_dim_0_pairs, sizeof(__pyx_k_dim_0_pairs), 0, 0, 1, 1},
+  {&__pyx_n_s_doRipsFiltrationDM, __pyx_k_doRipsFiltrationDM, sizeof(__pyx_k_doRipsFiltrationDM), 0, 0, 1, 1},
   {&__pyx_n_s_doRipsFiltrationDMCycles, __pyx_k_doRipsFiltrationDMCycles, sizeof(__pyx_k_doRipsFiltrationDMCycles), 0, 0, 1, 1},
+  {&__pyx_n_s_doRipsFiltrationDMSparse, __pyx_k_doRipsFiltrationDMSparse, sizeof(__pyx_k_doRipsFiltrationDMSparse), 0, 0, 1, 1},
   {&__pyx_n_s_doRipsFiltrationDMSparseCycles, __pyx_k_doRipsFiltrationDMSparseCycles, sizeof(__pyx_k_doRipsFiltrationDMSparseCycles), 0, 0, 1, 1},
   {&__pyx_n_s_do_cocycles, __pyx_k_do_cocycles, sizeof(__pyx_k_do_cocycles), 0, 0, 1, 1},
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
@@ -3653,26 +4339,50 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "pyRipser.pyx":9
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ * def doRipsFiltrationDM(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
  * 
- * 	cdef int N = DParam.shape[0]
  */
-  __pyx_tuple__3 = PyTuple_Pack(6, __pyx_n_s_DParam, __pyx_n_s_maxHomDim, __pyx_n_s_thresh, __pyx_n_s_coeff, __pyx_n_s_N, __pyx_n_s_res); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(7, __pyx_n_s_DParam, __pyx_n_s_maxHomDim, __pyx_n_s_thresh, __pyx_n_s_coeff, __pyx_n_s_do_cocycles, __pyx_n_s_N, __pyx_n_s_res); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
-  __pyx_codeobj__4 = (PyObject*)__Pyx_PyCode_New(4, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__3, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ripser_pyRipser_pyx, __pyx_n_s_doRipsFiltrationDMCycles, 9, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__4)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_codeobj__4 = (PyObject*)__Pyx_PyCode_New(5, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__3, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ripser_pyRipser_pyx, __pyx_n_s_doRipsFiltrationDM, 9, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__4)) __PYX_ERR(0, 9, __pyx_L1_error)
 
-  /* "pyRipser.pyx":20
+  /* "pyRipser.pyx":19
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
+ * 
+ */
+  __pyx_tuple__5 = PyTuple_Pack(6, __pyx_n_s_DParam, __pyx_n_s_maxHomDim, __pyx_n_s_thresh, __pyx_n_s_coeff, __pyx_n_s_N, __pyx_n_s_res); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__5);
+  __Pyx_GIVEREF(__pyx_tuple__5);
+  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(4, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ripser_pyRipser_pyx, __pyx_n_s_doRipsFiltrationDMCycles, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 19, __pyx_L1_error)
+
+  /* "pyRipser.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMSparse(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int NEdges = I.size
+ */
+  __pyx_tuple__7 = PyTuple_Pack(10, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_V, __pyx_n_s_N, __pyx_n_s_maxHomDim, __pyx_n_s_thresh, __pyx_n_s_coeff, __pyx_n_s_do_cocycles, __pyx_n_s_NEdges, __pyx_n_s_res); if (unlikely(!__pyx_tuple__7)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__7);
+  __Pyx_GIVEREF(__pyx_tuple__7);
+  __pyx_codeobj__8 = (PyObject*)__Pyx_PyCode_New(8, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__7, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ripser_pyRipser_pyx, __pyx_n_s_doRipsFiltrationDMSparse, 29, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__8)) __PYX_ERR(0, 29, __pyx_L1_error)
+
+  /* "pyRipser.pyx":40
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
- * 	cdef int NEdges = I.size
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ *     cdef int NEdges = I.size
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
  */
-  __pyx_tuple__5 = PyTuple_Pack(10, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_V, __pyx_n_s_N, __pyx_n_s_maxHomDim, __pyx_n_s_thresh, __pyx_n_s_coeff, __pyx_n_s_do_cocycles, __pyx_n_s_NEdges, __pyx_n_s_res); if (unlikely(!__pyx_tuple__5)) __PYX_ERR(0, 20, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__5);
-  __Pyx_GIVEREF(__pyx_tuple__5);
-  __pyx_codeobj__6 = (PyObject*)__Pyx_PyCode_New(8, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__5, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ripser_pyRipser_pyx, __pyx_n_s_doRipsFiltrationDMSparseCycles, 20, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__6)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_tuple__9 = PyTuple_Pack(10, __pyx_n_s_I, __pyx_n_s_J, __pyx_n_s_V, __pyx_n_s_N, __pyx_n_s_maxHomDim, __pyx_n_s_thresh, __pyx_n_s_coeff, __pyx_n_s_do_cocycles, __pyx_n_s_NEdges, __pyx_n_s_res); if (unlikely(!__pyx_tuple__9)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__9);
+  __Pyx_GIVEREF(__pyx_tuple__9);
+  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(8, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_ripser_pyRipser_pyx, __pyx_n_s_doRipsFiltrationDMSparseCycles, 40, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -4008,25 +4718,49 @@ if (!__Pyx_RefNanny) {
   /* "pyRipser.pyx":9
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
- * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ * def doRipsFiltrationDM(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
  * 
- * 	cdef int N = DParam.shape[0]
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pyRipser_1doRipsFiltrationDMCycles, NULL, __pyx_n_s_pyRipser); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pyRipser_1doRipsFiltrationDM, NULL, __pyx_n_s_pyRipser); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_doRipsFiltrationDMCycles, __pyx_t_1) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_doRipsFiltrationDM, __pyx_t_1) < 0) __PYX_ERR(0, 9, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pyRipser.pyx":20
+  /* "pyRipser.pyx":19
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMCycles(np.ndarray[float,ndim=1,mode="c"] DParam not None, int maxHomDim, float thresh=-1, int coeff=2):             # <<<<<<<<<<<<<<
+ *     cdef int N = DParam.shape[0]
+ * 
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pyRipser_3doRipsFiltrationDMCycles, NULL, __pyx_n_s_pyRipser); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_doRipsFiltrationDMCycles, __pyx_t_1) < 0) __PYX_ERR(0, 19, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pyRipser.pyx":29
+ * @cython.boundscheck(False)
+ * @cython.wraparound(False)
+ * def doRipsFiltrationDMSparse(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int NEdges = I.size
+ */
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pyRipser_5doRipsFiltrationDMSparse, NULL, __pyx_n_s_pyRipser); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_doRipsFiltrationDMSparse, __pyx_t_1) < 0) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+
+  /* "pyRipser.pyx":40
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  * def doRipsFiltrationDMSparseCycles(np.ndarray[int,ndim=1,mode="c"] I not None, np.ndarray[int,ndim=1,mode="c"] J not None, np.ndarray[float,ndim=1,mode="c"] V not None, int N, int maxHomDim, float thresh=-1, int coeff=2, bint do_cocycles=0):             # <<<<<<<<<<<<<<
- * 	cdef int NEdges = I.size
- * 	res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
+ *     cdef int NEdges = I.size
+ *     res = pyRips.rips_dm_sparse_cycles(&I[0], &J[0], &V[0], NEdges, N, coeff, maxHomDim, thresh)
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pyRipser_3doRipsFiltrationDMSparseCycles, NULL, __pyx_n_s_pyRipser); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_8pyRipser_7doRipsFiltrationDMSparseCycles, NULL, __pyx_n_s_pyRipser); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_doRipsFiltrationDMSparseCycles, __pyx_t_1) < 0) __PYX_ERR(0, 20, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_doRipsFiltrationDMSparseCycles, __pyx_t_1) < 0) __PYX_ERR(0, 40, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "pyRipser.pyx":1
@@ -5537,6 +6271,25 @@ static void __Pyx_ReleaseBuffer(Py_buffer *view) {
 static PyObject* __pyx_convert__to_py_ripserResults(ripserResults s) {
     PyObject* res;
     PyObject* member;
+    res = __Pyx_PyDict_NewPresized(3); if (unlikely(!res)) return NULL;
+    member = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(s.births_and_deaths_by_dim); if (unlikely(!member)) goto bad;
+    if (unlikely(PyDict_SetItem(res, __pyx_n_s_births_and_deaths_by_dim, member) < 0)) goto bad;
+    Py_DECREF(member);
+    member = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_std_3a__3a_vector_3c_int_3e____3e___(s.cocycles_by_dim); if (unlikely(!member)) goto bad;
+    if (unlikely(PyDict_SetItem(res, __pyx_n_s_cocycles_by_dim, member) < 0)) goto bad;
+    Py_DECREF(member);
+    member = __Pyx_PyInt_From_int(s.num_edges); if (unlikely(!member)) goto bad;
+    if (unlikely(PyDict_SetItem(res, __pyx_n_s_num_edges, member) < 0)) goto bad;
+    Py_DECREF(member);
+    return res;
+    bad:
+    Py_XDECREF(member);
+    Py_DECREF(res);
+    return NULL;
+  }
+  static PyObject* __pyx_convert__to_py_ripserResultsCycles(ripserResultsCycles s) {
+    PyObject* res;
+    PyObject* member;
     res = __Pyx_PyDict_NewPresized(4); if (unlikely(!res)) return NULL;
     member = __pyx_convert_vector_to_py_std_3a__3a_vector_3c_float_3e___(s.births_and_deaths_by_dim); if (unlikely(!member)) goto bad;
     if (unlikely(PyDict_SetItem(res, __pyx_n_s_births_and_deaths_by_dim, member) < 0)) goto bad;
@@ -6061,44 +6814,6 @@ raise_neg_overflow:
 }
 
 /* CIntToPy */
-  static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
-    const long neg_one = (long) -1, const_zero = (long) 0;
-#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-    const int is_unsigned = neg_one > const_zero;
-    if (is_unsigned) {
-        if (sizeof(long) < sizeof(long)) {
-            return PyInt_FromLong((long) value);
-        } else if (sizeof(long) <= sizeof(unsigned long)) {
-            return PyLong_FromUnsignedLong((unsigned long) value);
-#ifdef HAVE_LONG_LONG
-        } else if (sizeof(long) <= sizeof(unsigned PY_LONG_LONG)) {
-            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
-#endif
-        }
-    } else {
-        if (sizeof(long) <= sizeof(long)) {
-            return PyInt_FromLong((long) value);
-#ifdef HAVE_LONG_LONG
-        } else if (sizeof(long) <= sizeof(PY_LONG_LONG)) {
-            return PyLong_FromLongLong((PY_LONG_LONG) value);
-#endif
-        }
-    }
-    {
-        int one = 1; int little = (int)*(unsigned char *)&one;
-        unsigned char *bytes = (unsigned char *)&value;
-        return _PyLong_FromByteArray(bytes, sizeof(long),
-                                     little, !is_unsigned);
-    }
-}
-
-/* CIntToPy */
   static CYTHON_INLINE PyObject* __Pyx_PyInt_From_int(int value) {
 #ifdef __Pyx_HAS_GCC_DIAGNOSTIC
 #pragma GCC diagnostic push
@@ -6132,6 +6847,44 @@ raise_neg_overflow:
         int one = 1; int little = (int)*(unsigned char *)&one;
         unsigned char *bytes = (unsigned char *)&value;
         return _PyLong_FromByteArray(bytes, sizeof(int),
+                                     little, !is_unsigned);
+    }
+}
+
+/* CIntToPy */
+  static CYTHON_INLINE PyObject* __Pyx_PyInt_From_long(long value) {
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#endif
+    const long neg_one = (long) -1, const_zero = (long) 0;
+#ifdef __Pyx_HAS_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+    const int is_unsigned = neg_one > const_zero;
+    if (is_unsigned) {
+        if (sizeof(long) < sizeof(long)) {
+            return PyInt_FromLong((long) value);
+        } else if (sizeof(long) <= sizeof(unsigned long)) {
+            return PyLong_FromUnsignedLong((unsigned long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(long) <= sizeof(unsigned PY_LONG_LONG)) {
+            return PyLong_FromUnsignedLongLong((unsigned PY_LONG_LONG) value);
+#endif
+        }
+    } else {
+        if (sizeof(long) <= sizeof(long)) {
+            return PyInt_FromLong((long) value);
+#ifdef HAVE_LONG_LONG
+        } else if (sizeof(long) <= sizeof(PY_LONG_LONG)) {
+            return PyLong_FromLongLong((PY_LONG_LONG) value);
+#endif
+        }
+    }
+    {
+        int one = 1; int little = (int)*(unsigned char *)&one;
+        unsigned char *bytes = (unsigned char *)&value;
+        return _PyLong_FromByteArray(bytes, sizeof(long),
                                      little, !is_unsigned);
     }
 }

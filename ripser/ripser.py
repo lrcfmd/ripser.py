@@ -36,16 +36,16 @@ from scipy.spatial.distance import squareform
 
 import persim
 
-# from pyRipser import doRipsFiltrationDM as DRFDM
+from pyRipser import doRipsFiltrationDM as DRFDM
 from pyRipser import doRipsFiltrationDMCycles as DRFDMCycles
-# from pyRipser import doRipsFiltrationDMSparse as DRFDMSparse
+from pyRipser import doRipsFiltrationDMSparse as DRFDMSparse
 from pyRipser import doRipsFiltrationDMSparseCycles as DRFDMSparseCycles
 
 
 def main():
     rips = Rips()
     dm = squareform([1.0, 1.0,1.41421356,1.41421356,1.0,1.0, 1.0,1.41421356,1.41421356,1.73205081, 1.41421356,1.0,1.73205081,1.41421356,1.0, 1.41421356,1.73205081,1.0,1.41421356,1.0,1.41421356, 1.73205081,1.41421356,1.41421356,1.0,1.41421356,1.0,1.0])
-    rips.fit_transform(dm, distance_matrix=True)
+    rips.fit_transform(dm, distance_matrix=True, do_cycles=False)
     print()
 
 def dpoint2pointcloud(X, i, metric):
@@ -122,7 +122,7 @@ def ripser(
     coeff=2,
     distance_matrix=False,
     do_cocycles=False,
-    do_cycles=True,
+    do_cycles=False,
     metric="euclidean",
     n_perm=None,
 ):
@@ -149,7 +149,7 @@ def ripser(
     distance_matrix: bool, optional, default False
         When True the input matrix X will be considered a distance matrix.
 
-    do_cocycles: bool, optional, default True
+    do_cocycles: bool, optional, default False
         Computed cocycles will be available in the `cocycles` value
         of the return dictionary.
 
@@ -343,7 +343,7 @@ def ripser(
                 coeff,
             )
         else:
-            res = DRFDMSparseCycles(
+            res = DRFDMSparse(
                 row.astype(dtype=np.int32, order="C"),
                 col.astype(dtype=np.int32, order="C"),
                 np.array(data, dtype=np.float32, order="C"),
@@ -355,12 +355,19 @@ def ripser(
     else:
         I, J = np.meshgrid(np.arange(n_points), np.arange(n_points))
         DParam = np.array(dm[I > J], dtype=np.float32)
-        
-        res = DRFDMCycles(DParam,
-            maxdim,
-            thresh,
-            coeff
-        )
+        if do_cycles:
+            res = DRFDMCycles(DParam,
+                maxdim,
+                thresh,
+                coeff
+            )
+        else:
+            res = DRFDM(DParam,
+                maxdim,
+                thresh,
+                coeff,
+                do_cocycles
+            )
        #
     print(res)
     # Unwrap persistence diagrams
@@ -371,33 +378,57 @@ def ripser(
         dgms[dim] = np.reshape(np.array(dgms[dim]), [N, 2])
 
     # Unwrap cycles if calculated
-    for dim in range(len(res["cycles_by_dim"])):
-        cycles.append([])
-        for j in range(len(res["cycles_by_dim"][dim])):
-            ccl = res["cycles_by_dim"][dim][j]
-            n = int(len(ccl)/2)
-            ccl = np.reshape(np.array(ccl, dtype=np.int64), [n, 2])
+    if do_cycles:
+        for dim in range(len(res["cycles_by_dim"])):
+            cycles.append([])
+            for j in range(len(res["cycles_by_dim"][dim])):
+                ccl = res["cycles_by_dim"][dim][j]
+                n = int(len(ccl)/2)
+                ccl = np.reshape(np.array(ccl, dtype=np.int64), [n, 2])
 
-            ccl=np.concatenate((ccl[:1], ccl[2:], ccl[1].reshape(1, -1)), axis=0)
+                ccl=np.concatenate((ccl[:1], ccl[2:], ccl[1].reshape(1, -1)), axis=0)
 
-            # ccl[:, -1] = np.mod(ccl[:, -1], coeff)
-            # if doing_permutation:
-                # Retain original indices in the point cloud
-                # ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
-            cycles[dim].append(ccl)                
-            pairs = np.array(res["dim_0_pairs"])
-            pairs = np.append(pairs, np.nan)
-            dim_0_pairs = np.reshape(pairs, (int(len(pairs) / 2), 2))
-    
-    ret = {
-        "dgms": dgms,
-        "dim_0_pairs": dim_0_pairs,
-        "cycles": cycles,
-        "num_edges": res["num_edges"],
-        "dperm2all": dperm2all,
-        "idx_perm": idx_perm,
-        "r_cover": r_cover,
-    }
+                # ccl[:, -1] = np.mod(ccl[:, -1], coeff)
+                # if doing_permutation:
+                    # Retain original indices in the point cloud
+                    # ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
+                cycles[dim].append(ccl)                
+                pairs = np.array(res["dim_0_pairs"])
+                pairs = np.append(pairs, np.nan)
+                dim_0_pairs = np.reshape(pairs, (int(len(pairs) / 2), 2))
+        ret = {
+            "dgms": dgms,
+            "dim_0_pairs": dim_0_pairs,
+            "cycles": cycles,
+            "num_edges": res["num_edges"],
+            "dperm2all": dperm2all,
+            "idx_perm": idx_perm,
+            "r_cover": r_cover,
+        }
+
+    else:
+        # Unwrap cocycles
+        cocycles = []
+        for dim in range(len(res["cocycles_by_dim"])):
+            cocycles.append([])
+            for j in range(len(res["cocycles_by_dim"][dim])):
+                ccl = res["cocycles_by_dim"][dim][j]
+                n = int(len(ccl) / (dim + 2))
+                ccl = np.reshape(np.array(ccl, dtype=np.int64), [n, dim + 2])
+                ccl[:, -1] = np.mod(ccl[:, -1], coeff)
+                if doing_permutation:
+                    # Retain original indices in the point cloud
+                    ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
+                cocycles[dim].append(ccl)
+
+        ret = {
+            "dgms": dgms,
+            "cocycles": cocycles,
+            "num_edges": res["num_edges"],
+            "dperm2all": dperm2all,
+            "idx_perm": idx_perm,
+            "r_cover": r_cover,
+        }
 
     return ret
 
@@ -556,11 +587,12 @@ class Rips(TransformerMixin):
         maxdim=1,
         thresh=np.inf,
         coeff=2,
-        do_cycles=True,
+        do_cycles=False,
         do_cocycles=False,
         n_perm=None,
         verbose=True,
     ):
+        print(do_cycles)
         self.maxdim = maxdim
         self.thresh = thresh
         self.coeff = coeff
@@ -598,14 +630,20 @@ class Rips(TransformerMixin):
             metric=metric,
             n_perm=self.n_perm,
         )
+
+        
         
         self.dgms_ = result["dgms"]
         self.num_edges_ = result["num_edges"]
         self.dperm2all_ = result["dperm2all"]
         self.idx_perm_ = result["idx_perm"]
-        
-        self.dim_0_pairs_ = result["dim_0_pairs"]
-        self.cycles_ = result["cycles"][-1]
+
+        if self.do_cycles:
+            self.dim_0_pairs_ = result["dim_0_pairs"]
+            self.cycles_ = result["cycles"][-1]
+
+        elif self.do_cocycles:
+            self.cocycles_ = result["cocycles"]
 
         self.r_cover_ = result["r_cover"]
 
