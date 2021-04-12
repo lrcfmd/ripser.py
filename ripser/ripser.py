@@ -686,7 +686,7 @@ class Rips(TransformerMixin):
         if self.do_cycles:
             print("Dim 0 Persistence Intervals:")
             for i, interval in enumerate(self.dgms_[0]):
-                if i == len(self.dgms_[0]) - 1:
+                if i == len(self.dgms_[0]):
                     print(f"[{interval[0]:.1f}, {interval[1]:.3f}): []")
                     continue
                 print(f"[{interval[0]:.1f}, {interval[1]:.3f}): {self.dim_0_pairs_[i]}")
