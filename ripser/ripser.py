@@ -394,7 +394,7 @@ def ripser(
                     # ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
                 cycles[dim].append(ccl)                
                 pairs = np.array(res["dim_0_pairs"])
-                pairs = np.append(pairs, np.nan)
+                pairs = np.append(pairs, np.array([0, np.nan]))
                 dim_0_pairs = np.reshape(pairs, (int(len(pairs) / 2), 2))
         ret = {
             "dgms": dgms,
