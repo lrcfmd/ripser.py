@@ -394,8 +394,14 @@ def ripser(
                     # ccl[:, 0:-1] = idx_perm[ccl[:, 0:-1]]
                 cycles[dim].append(ccl)                
                 pairs = np.array(res["dim_0_pairs"])
-                pairs = np.append(pairs, np.array([0, np.nan]))
+
+                if len(pairs) % 2 == 0:
+                    pairs = np.append(pairs, np.array([0, np.nan]))
+                else:
+                    pairs = np.append(pairs, np.array([np.nan]))
+                
                 dim_0_pairs = np.reshape(pairs, (int(len(pairs) / 2), 2))
+        
         ret = {
             "dgms": dgms,
             "dim_0_pairs": dim_0_pairs,
@@ -631,8 +637,6 @@ class Rips(TransformerMixin):
             n_perm=self.n_perm,
         )
 
-        
-        
         self.dgms_ = result["dgms"]
         self.num_edges_ = result["num_edges"]
         self.dperm2all_ = result["dperm2all"]
